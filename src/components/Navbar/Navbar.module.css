@@ -1,0 +1,23 @@
+.navbar{
+    background-color: #3B466B10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 25px;
+    margin: 15px 55px;
+    border-radius: 20px;
+    
+}
+
+.heading{
+    font-size: 24px;
+    font-family: var(--headingFont);
+}
+
+.dateDay{
+    background-color: #5A689430;
+    font-size: 16px;
+    padding: 16px 55px;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
