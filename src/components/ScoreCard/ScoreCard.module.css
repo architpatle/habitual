@@ -1,0 +1,35 @@
+.scoreCard{
+    background-color: #3B466B10;
+    width: 470px;
+    padding: 50px 35px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.icon{
+    color: #0048FF;
+    font-size: 60px;
+}
+
+.text{
+    h2{
+        font-size: 24px;
+        font-weight: 400;
+    }
+    p{
+        font-size: 48px;
+        font-weight: 500;
+        float: right;
+    }
+}
+
+
+.red{
+    color: #B23333;
+}
+
+.green{
+    color: #27AE52;
+}
