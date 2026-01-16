@@ -8,7 +8,12 @@
   justify-content: space-between;
 
   background-color: #3B466B10;
-  margin: 15px ;
+  background: linear-gradient(135deg, #050925, #071842, #050925);
+border: 1px solid rgba(255,255,255,0.1);
+backdrop-filter: blur(4px);
+
+
+  margin: 15px 0 15px 15px;
 
   /* background: linear-gradient(
     135deg,

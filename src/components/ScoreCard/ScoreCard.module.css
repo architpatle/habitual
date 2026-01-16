@@ -1,5 +1,10 @@
 .scoreCard{
     background-color: #3B466B10;
+  background: linear-gradient(135deg, #050925, #071842, #050925);
+border: 1px solid rgba(255,255,255,0.1);
+backdrop-filter: blur(4px);
+
+
     width: 470px;
     padding: 50px 35px;
     border-radius: 20px;
