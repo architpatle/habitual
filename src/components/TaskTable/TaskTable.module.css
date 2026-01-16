@@ -56,6 +56,55 @@
   border: none;
   color: white;
 }
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0048FF;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.addBtn:hover {
+  background: #2a60cc;
+}
+
+.date {
+  opacity: 0.6;
+  font-size: 13px;
+}
+
+.actions {
+  /* display: flex; */
+  gap: 10px;
+  padding: 12px 8px;
+
+}
+
+.edit {
+  color: #ffc107;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.del {
+  color: #dc3545;
+  cursor: pointer;
+}
+
 /* Chrome, Edge, Safari */
 ::-webkit-scrollbar {
   display: none;
