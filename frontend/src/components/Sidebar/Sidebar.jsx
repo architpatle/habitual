@@ -30,7 +30,7 @@ const Sidebar = () => {
 
             <div className={styles.footer}>
                 <FiUser className={styles.icon}/>
-                <span>User Name</span>
+                <span>Archit Patle</span>
             </div>
         </aside>
     );

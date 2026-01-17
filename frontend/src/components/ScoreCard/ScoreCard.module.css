@@ -1,9 +1,8 @@
-.scoreCard{
+.scoreCard {
     background-color: #3B466B10;
-  background: linear-gradient(135deg, #050925, #071842, #050925);
-border: 1px solid rgba(255,255,255,0.1);
-backdrop-filter: blur(4px);
-
+    background: linear-gradient(135deg, #050925, #071842, #050925);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(4px);
 
     width: 470px;
     padding: 50px 35px;
@@ -13,28 +12,27 @@ backdrop-filter: blur(4px);
     align-items: center;
 }
 
-.icon{
+.icon {
     color: #0048FF;
     font-size: 60px;
 }
 
-.text{
-    h2{
+.text {
+    h2 {
         font-size: 24px;
         font-weight: 400;
     }
-    p{
+    p {
         font-size: 48px;
         font-weight: 500;
         float: right;
     }
 }
 
-
-.red{
+.red {
     color: #B23333;
 }
 
-.green{
+.green {
     color: #27AE52;
 }
