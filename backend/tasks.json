@@ -6,10 +6,10 @@
       "miss",
       "miss",
       "miss",
+      "miss",
+      "miss",
       "done",
-      "miss",
-      "miss",
-      "miss"
+      "empty"
     ]
   },
   {
@@ -18,11 +18,11 @@
     "days": [
       "miss",
       "miss",
-      "done",
-      "done",
       "miss",
       "miss",
-      "done"
+      "miss",
+      "done",
+      "empty"
     ]
   },
   {
@@ -30,12 +30,12 @@
     "task": "Study",
     "days": [
       "miss",
-      "done",
       "miss",
       "miss",
       "miss",
       "miss",
-      "miss"
+      "empty",
+      "empty"
     ]
   },
   {
@@ -43,38 +43,38 @@
     "task": "Personal Project",
     "days": [
       "done",
-      "miss",
-      "miss",
-      "miss",
-      "miss",
-      "miss",
-      "miss"
+      "done",
+      "done",
+      "done",
+      "done",
+      "done",
+      "empty"
     ]
   },
   {
     "id": 1768598388482,
     "task": "Content Creation",
     "days": [
-      "miss",
+      "done",
+      "done",
       "done",
       "miss",
       "done",
-      "done",
-      "miss",
-      "miss"
+      "empty",
+      "empty"
     ]
   },
   {
     "id": 1768598393941,
     "task": "Meditation",
     "days": [
-      "miss",
-      "miss",
       "done",
       "done",
-      "miss",
       "done",
-      "miss"
+      "miss",
+      "miss",
+      "empty",
+      "empty"
     ]
   },
   {
@@ -87,20 +87,20 @@
       "done",
       "done",
       "done",
-      "miss"
+      "empty"
     ]
   },
   {
     "id": 1768598405224,
     "task": "Book Read",
     "days": [
-      "miss",
       "done",
       "done",
       "done",
       "done",
       "done",
-      "miss"
+      "empty",
+      "empty"
     ]
   }
 ]

@@ -8,32 +8,94 @@
   backdrop-filter: blur(4px);
 }
 
-.title {
-  text-align: center;
+/* HEADER TITLE + ADD BUTTON */
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
-  font-size: 20px;
-  font-weight: 600;
 }
 
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0048FF;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.addBtn:hover {
+  background: #2a60cc;
+}
+
+/* SCROLL WRAPPER */
+.tableWrapper {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* TABLE BASE */
 .table {
   width: 100%;
   border-collapse: collapse;
 }
 
+/* STICKY HEADER */
 .table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   padding: 12px 8px;
   font-size: 14px;
   font-weight: 500;
-  opacity: 0.8;
+  /* opacity: 0.85; */
   text-align: left;
+  background: rgba(5, 9, 37);
+  backdrop-filter: blur(4px);
 }
 
+/* TABLE BODY */
 .table tbody td {
   padding: 10px 8px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   font-size: 15px;
+  cursor: pointer;
 }
 
+/* ACTION BUTTONS */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+}
+
+.edit {
+  color: #ffc107;
+  cursor: pointer;
+}
+
+.del {
+  color: #dc3545;
+  cursor: pointer;
+}
+
+/* TOGGLE BUTTON STATES */
 .btn {
   display: inline-flex;
   justify-content: center;
@@ -43,8 +105,6 @@
   border-radius: 8px;
   font-size: 14px;
   border: 1px solid rgba(255,255,255,0.2);
-  cursor: pointer ;
-
 }
 
 .done {
@@ -58,30 +118,26 @@
   border: none;
   color: white;
 }
-.headerRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+
+/* FOOTER (DAILY AVG) */
+.table tfoot td {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: rgba(5, 9, 37);
+  font-weight: 600;
+  padding: 10px 8px;
+  border-top: 1px solid rgba(255,255,255,0.2);
 }
 
-.addBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #0048FF;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
-  color: white;
-  cursor: pointer ;
-  font-size: 14px;
-  font-weight: 500;
-  transition: 0.2s ease;
+.footerLabel {
+  /* opacity: 0.9; */
+  font-weight: 600;
 }
 
-.addBtn:hover {
-  background: #2a60cc;
+.footerCell {
+  font-weight: 600;
+  color: #00c46a; /* success green */
 }
 
 .date {
@@ -89,35 +145,12 @@
   font-size: 13px;
 }
 
-.actions {
-  /* display: flex; */
-  gap: 10px;
-  padding: 12px 8px;
-
-}
-
-.edit {
-  color: #ffc107;
-  cursor: pointer;
-  margin-right: 20px;
-}
-
-.del {
-  color: #dc3545;
-  cursor: pointer;
-}
-
-/* Chrome, Edge, Safari */
-::-webkit-scrollbar {
+/* SCROLLBAR HIDDEN */
+.tableWrapper::-webkit-scrollbar {
   display: none;
 }
 
-/* Firefox */
-* {
+.tableWrapper {
   scrollbar-width: none;
-}
-
-/* IE + Edge Legacy */
-* {
   -ms-overflow-style: none;
 }
