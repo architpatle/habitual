@@ -1,0 +1,222 @@
+[
+  {
+    "week": "2026-W3",
+    "generatedAt": "2026-01-19T21:16:20.012Z",
+    "tasks": [
+      {
+        "id": 1768598188751,
+        "task": "Major Project",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "done",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598360173,
+        "task": "Office Project",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "done",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598365674,
+        "task": "Study",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598381050,
+        "task": "Personal Project",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "done",
+          "done",
+          "done",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598388482,
+        "task": "Content Creation",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "miss",
+          "done",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598393941,
+        "task": "Meditation",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598399771,
+        "task": "Exercise",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "done",
+          "done",
+          "done",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598405224,
+        "task": "Book Read",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "done",
+          "done",
+          "miss",
+          "miss"
+        ]
+      }
+    ]
+  },
+  {
+    "week": "2026-W2",
+    "generatedAt": "2026-01-19T21:17:41.555Z",
+    "tasks": [
+      {
+        "id": 1768598188751,
+        "task": "Major Project",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598360173,
+        "task": "Office Project",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598365674,
+        "task": "Study",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598381050,
+        "task": "Personal Project",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598388482,
+        "task": "Content Creation",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598393941,
+        "task": "Meditation",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598399771,
+        "task": "Exercise",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598405224,
+        "task": "Book Read",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      }
+    ]
+  }
+]
