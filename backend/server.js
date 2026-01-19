@@ -81,6 +81,17 @@ app.get("/tasks", (req, res) => {
     res.json(stored.tasks);
 });
 
+// get history
+app.get("/history", (req,res) => {
+  if (!fs.existsSync(HISTORY_FILE)) {
+    return res.json([]);
+  }
+  const history = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8") || "[]");
+  res.json(history);
+});
+
+
+
 // POST tasks (update active week only)
 app.post("/tasks", (req, res) => {
     const currentWeek = getWeekKey();
