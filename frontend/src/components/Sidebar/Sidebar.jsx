@@ -21,13 +21,13 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink 
-          to="/status"
+          to="/stats"
           className={({ isActive }) =>
             `${styles.navItem} ${isActive ? styles.active : ""}`
           }
         >
           <FiBarChart2 className={styles.icon} />
-          <span>Status</span>
+          <span>Stats</span>
         </NavLink>
 
         <NavLink 
