@@ -1,39 +1,53 @@
 import styles from "./Sidebar.module.css";
-import {FiCalendar, FiBarChart2, FiClock, FiUser} from "react-icons/fi";
-import {Link} from 'react-router-dom'
+import { FiCalendar, FiBarChart2, FiClock, FiUser } from "react-icons/fi";
+import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
-    return (
-        <aside className={styles.sidebar}>
-            <h2 className={styles.title}>Habitual</h2>
+  return (
+    <aside className={styles.sidebar}>
+      <h2 className={styles.title}>Habitual</h2>
 
-            <nav className={styles.nav}>
-            
-                <Link to='/' className={`${styles.navItem} ${styles.active}`}>
-                    <FiCalendar className={`${styles.icon} ${styles.iconActive}`}/>
-                    <span>Today</span>
-                </Link>
-               
+      <nav className={styles.nav}>
 
-                <Link to ='/status' className={styles.navItem}>
-                    <FiBarChart2 className={styles.icon}/>
-                                        <span>Status</span>
+        <NavLink 
+          to="/"
+          className={({ isActive }) =>
+            `${styles.navItem} ${isActive ? styles.active : ""}`
+          }
+          end
+        >
+          <FiCalendar className={styles.icon} />
+          <span>Today</span>
+        </NavLink>
 
-                </Link>
+        <NavLink 
+          to="/status"
+          className={({ isActive }) =>
+            `${styles.navItem} ${isActive ? styles.active : ""}`
+          }
+        >
+          <FiBarChart2 className={styles.icon} />
+          <span>Status</span>
+        </NavLink>
 
-                <Link to='/history' className={styles.navItem}>
-                    <FiClock className={styles.icon}/>
-                                       <span>History</span>
+        <NavLink 
+          to="/history"
+          className={({ isActive }) =>
+            `${styles.navItem} ${isActive ? styles.active : ""}`
+          }
+        >
+          <FiClock className={styles.icon} />
+          <span>History</span>
+        </NavLink>
 
-                </Link>
-            </nav>
+      </nav>
 
-            <div className={styles.footer}>
-                <FiUser className={styles.icon}/>
-                <span>Archit Patle</span>
-            </div>
-        </aside>
-    );
-}
+      <div className={styles.footer}>
+        <FiUser className={styles.icon} />
+        <span>Archit Patle</span>
+      </div>
+    </aside>
+  );
+};
 
 export default Sidebar;
