@@ -1,6 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
+
 
 const app = express();
 app.use(cors());
@@ -8,6 +11,26 @@ app.use(express.json());
 
 const TASK_FILE = "./tasks.json";
 const HISTORY_FILE = "./history.json";
+
+
+app.post("/login", (req, res) => {
+  const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ error: "Password required" });
+  }
+
+  if (password !== process.env.APP_PASS) {
+    return res.status(401).json({ error: "Invalid password" });
+  }
+
+  // Issue token (valid 7 days)
+  const token = jwt.sign({ user: "owner" }, process.env.JWT_SECRET, {
+    expiresIn: "7d"
+  });
+
+  res.json({ token });
+});
 
 // Create week key
 const getWeekKey = () => {
@@ -19,7 +42,7 @@ const getWeekKey = () => {
 };
 
 // GET tasks with rollover
-app.get("/tasks", (req, res) => {
+app.get("/tasks",auth, (req, res) => {
     let stored = {
         week: null,
         tasks: []
@@ -81,8 +104,27 @@ app.get("/tasks", (req, res) => {
     res.json(stored.tasks);
 });
 
+const auth = (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header) {
+    return res.status(401).json({ error: "Missing auth header" });
+  }
+
+  const token = header.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ error: "Token missing" });
+  }
+
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    next(); // allow request to continue
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+};
+
 // get history
-app.get("/history", (req,res) => {
+app.get("/history",auth, (req,res) => {
   if (!fs.existsSync(HISTORY_FILE)) {
     return res.json([]);
   }
@@ -93,7 +135,7 @@ app.get("/history", (req,res) => {
 
 
 // POST tasks (update active week only)
-app.post("/tasks", (req, res) => {
+app.post("/tasks",auth, (req, res) => {
     const currentWeek = getWeekKey();
     const updated = {
         week: currentWeek,
