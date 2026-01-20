@@ -75,7 +75,12 @@ const History = () => {
       </div>
 
       {/* Task Table (READ ONLY mode) */}
-      <TaskTable tasks={selectedWeek.tasks} editable={false} />
+      <TaskTable 
+  tasks={selectedWeek.tasks} 
+  editable={false}
+  weekKey={selectedWeek.week}
+/>
+
 
     </div>
   );
