@@ -2,13 +2,15 @@ import React, {useEffect, useState} from 'react'
 import styles from './Today.module.css'
 import ScoreCard from '../../components/ScoreCard/ScoreCard'
 import TaskTable from '../../components/TaskTable/TaskTable'
+import { apiFetch } from "../../utils/api";
+
 
 const Today = () => {
     const [tasks,
         setTasks] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:5000/tasks")
+        apiFetch("/tasks")
             .then(res => res.json())
             .then(data => setTasks(data))
     }, [])

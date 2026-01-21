@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import styles from "./TaskTable.module.css";
 import { FiCheck, FiX, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import { apiFetch } from "../../utils/api";
+
 
 // Generate current week dates (Today Page)
 const getWeekDates = () => {
@@ -48,7 +50,7 @@ const TaskTable = ({ tasks, setTasks, editable = true, weekKey }) => {
   // Fetch tasks only in Today Page (editable)
   useEffect(() => {
     if (!editable) return;
-    fetch("http://localhost:5000/tasks")
+    apiFetch("/tasks")
       .then(res => res.json())
       .then(data => setTasks(data))
       .catch(err => console.error("Error loading tasks:", err));
@@ -57,11 +59,11 @@ const TaskTable = ({ tasks, setTasks, editable = true, weekKey }) => {
   // Save only in editable mode
   const save = (updatedTasks) => {
     if (!editable) return;
-    fetch("http://localhost:5000/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedTasks)
-    });
+    apiFetch("/tasks", {
+  method: "POST",
+  body: JSON.stringify(updatedTasks)
+});
+
   };
 
   const addTask = () => {

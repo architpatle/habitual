@@ -2,6 +2,8 @@ import React, {useEffect, useState} from "react";
 import styles from "./History.module.css"; // optional css, can reuse Today.css
 import ScoreCard from "../../components/ScoreCard/ScoreCard";
 import TaskTable from "../../components/TaskTable/TaskTable";
+import { apiFetch } from "../../utils/api";
+
 
 const History = () => {
     const [weeks,
@@ -11,7 +13,7 @@ const History = () => {
 
     // Load archived weeks
     useEffect(() => {
-        fetch("http://localhost:5000/history")
+        apiFetch("/history")
             .then(res => res.json())
             .then(data => {
                 setWeeks(data);
