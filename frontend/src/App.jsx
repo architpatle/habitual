@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import "./app.css";
+import "./App.css";
 
 import Today from "./pages/Today/Today";
 import History from "./pages/History/History";
