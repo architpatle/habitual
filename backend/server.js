@@ -1,41 +1,33 @@
 require("dotenv").config();
 const express = require("express");
-const fs = require("fs");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const supabase = require("./supabase");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const TASK_FILE = "./tasks.json";
-const HISTORY_FILE = "./history.json";
-
 /* =========================
-   AUTH MIDDLEWARE (MUST BE FIRST)
+   AUTH MIDDLEWARE
    ========================= */
 const auth = (req, res, next) => {
   const header = req.headers.authorization;
-
-  if (!header) {
-    return res.status(401).json({ error: "Missing auth header" });
-  }
+  if (!header) return res.status(401).json({ error: "Missing auth header" });
 
   const token = header.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: "Token missing" });
-  }
+  if (!token) return res.status(401).json({ error: "Token missing" });
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
     next();
-  } catch (err) {
+  } catch {
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 };
 
 /* =========================
-   LOGIN ROUTE (PUBLIC)
+   LOGIN (PUBLIC)
    ========================= */
 app.post("/login", (req, res) => {
   const { password } = req.body;
@@ -69,80 +61,128 @@ const getWeekKey = () => {
 };
 
 /* =========================
-   GET TASKS (PROTECTED)
+   GET TASKS (CURRENT WEEK)
    ========================= */
-app.get("/tasks", auth, (req, res) => {
-  let stored = { week: null, tasks: [] };
-
-  if (fs.existsSync(TASK_FILE)) {
-    stored = JSON.parse(fs.readFileSync(TASK_FILE, "utf8") || "{}");
-  }
-
+app.get("/tasks", auth, async (req, res) => {
   const currentWeek = getWeekKey();
 
-  // Week rollover
-  if (!stored.week || stored.week !== currentWeek) {
+  // 1. Get latest tasks (any week)
+  const { data: existing, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .order("updated_at", { ascending: false });
 
-    // Archive old week
-    if (stored.week && stored.tasks.length > 0) {
-      let history = [];
-
-      if (fs.existsSync(HISTORY_FILE)) {
-        history = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8") || "[]");
-      }
-
-      const finalizedTasks = stored.tasks.map(t => ({
-        ...t,
-        days: t.days.map(d => (d === "empty" ? "miss" : d))
-      }));
-
-      history.push({
-        week: stored.week,
-        generatedAt: new Date().toISOString(),
-        tasks: finalizedTasks
-      });
-
-      fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
-    }
-
-    // Reset for new week
-    stored = {
-      week: currentWeek,
-      tasks: stored.tasks.map(t => ({
-        ...t,
-        days: Array(7).fill("empty")
-      }))
-    };
-
-    fs.writeFileSync(TASK_FILE, JSON.stringify(stored, null, 2));
+  if (error) {
+    return res.status(500).json({ error: error.message });
   }
 
-  res.json(stored.tasks);
+  // No tasks ever
+  if (!existing || existing.length === 0) {
+    return res.json([]);
+  }
+
+  const storedWeek = existing[0].week;
+
+  // 2. Week changed → archive old week
+  if (storedWeek !== currentWeek) {
+
+    // Fetch all tasks of previous week
+    const prevTasks = existing.filter(t => t.week === storedWeek);
+
+    // Apply accountability rule
+    const finalized = prevTasks.map(t => ({
+      id: t.id,
+      task: t.name,
+      days: t.days.map(d => (d === "empty" ? "miss" : d))
+    }));
+
+    // Save to history
+    await supabase.from("history").insert({
+      week: storedWeek,
+      tasks: finalized
+    });
+
+    // Delete old week tasks
+    await supabase.from("tasks").delete().eq("week", storedWeek);
+
+    // Reset for new week
+    const reset = prevTasks.map(t => ({
+      id: t.id,
+      name: t.name,
+      days: Array(7).fill("empty"),
+      week: currentWeek
+    }));
+
+    await supabase.from("tasks").insert(reset);
+
+    return res.json(
+      reset.map(t => ({
+        id: t.id,
+        task: t.name,
+        days: t.days
+      }))
+    );
+  }
+
+  // 3. Same week → return current tasks
+  const currentTasks = existing.filter(t => t.week === currentWeek);
+
+  res.json(
+    currentTasks.map(t => ({
+      id: t.id,
+      task: t.name,
+      days: t.days
+    }))
+  );
 });
 
-/* =========================
-   POST TASKS (PROTECTED)
-   ========================= */
-app.post("/tasks", auth, (req, res) => {
-  const updated = {
-    week: getWeekKey(),
-    tasks: req.body
-  };
 
-  fs.writeFileSync(TASK_FILE, JSON.stringify(updated, null, 2));
+/* =========================
+   SAVE TASKS (CURRENT WEEK)
+   ========================= */
+app.post("/tasks", auth, async (req, res) => {
+  const week = getWeekKey();
+  const tasks = req.body;
+
+  // Clear current week
+  await supabase.from("tasks").delete().eq("week", week);
+
+  // Insert updated tasks
+  const payload = tasks.map(t => ({
+    id: t.id,
+    name: t.task,
+    days: t.days,
+    week
+  }));
+
+  const { error } = await supabase.from("tasks").insert(payload);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
   res.sendStatus(200);
 });
 
 /* =========================
-   GET HISTORY (PROTECTED)
+   GET HISTORY
    ========================= */
-app.get("/history", auth, (req, res) => {
-  if (!fs.existsSync(HISTORY_FILE)) {
-    return res.json([]);
+app.get("/history", auth, async (req, res) => {
+  const { data, error } = await supabase
+    .from("history")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
   }
 
-  const history = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8") || "[]");
-  res.json(history);
+  res.json(
+    data.map(h => ({
+      week: h.week,
+      tasks: h.tasks
+    }))
+  );
 });
 
 /* =========================

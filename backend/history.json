@@ -218,5 +218,115 @@
         ]
       }
     ]
+  },
+  {
+    "week": "2026-W4",
+    "generatedAt": "2026-01-24T13:45:17.368Z",
+    "tasks": [
+      {
+        "id": 1768598188751,
+        "task": "Major Project",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598360173,
+        "task": "Office Project",
+        "days": [
+          "done",
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598365674,
+        "task": "Study",
+        "days": [
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598381050,
+        "task": "Personal Project",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598388482,
+        "task": "Content Creation",
+        "days": [
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598393941,
+        "task": "Meditation",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598399771,
+        "task": "Exercise",
+        "days": [
+          "done",
+          "done",
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      },
+      {
+        "id": 1768598405224,
+        "task": "Book Read",
+        "days": [
+          "done",
+          "done",
+          "miss",
+          "miss",
+          "miss",
+          "miss",
+          "miss"
+        ]
+      }
+    ]
   }
 ]

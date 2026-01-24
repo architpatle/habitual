@@ -1,13 +1,13 @@
 {
-  "week": "2026-W4",
+  "week": "2026-W5",
   "tasks": [
     {
       "id": 1768598188751,
       "task": "Major Project",
       "days": [
-        "done",
-        "done",
-        "done",
+        "empty",
+        "empty",
+        "empty",
         "empty",
         "empty",
         "empty",
@@ -18,8 +18,8 @@
       "id": 1768598360173,
       "task": "Office Project",
       "days": [
-        "done",
-        "done",
+        "empty",
+        "empty",
         "empty",
         "empty",
         "empty",
@@ -31,7 +31,7 @@
       "id": 1768598365674,
       "task": "Study",
       "days": [
-        "done",
+        "empty",
         "empty",
         "empty",
         "empty",
@@ -44,9 +44,9 @@
       "id": 1768598381050,
       "task": "Personal Project",
       "days": [
-        "done",
-        "done",
-        "done",
+        "empty",
+        "empty",
+        "empty",
         "empty",
         "empty",
         "empty",
@@ -70,9 +70,9 @@
       "id": 1768598393941,
       "task": "Meditation",
       "days": [
-        "done",
-        "done",
-        "done",
+        "empty",
+        "empty",
+        "empty",
         "empty",
         "empty",
         "empty",
@@ -83,9 +83,9 @@
       "id": 1768598399771,
       "task": "Exercise",
       "days": [
-        "done",
-        "done",
-        "done",
+        "empty",
+        "empty",
+        "empty",
         "empty",
         "empty",
         "empty",
@@ -96,8 +96,8 @@
       "id": 1768598405224,
       "task": "Book Read",
       "days": [
-        "done",
-        "done",
+        "empty",
+        "empty",
         "empty",
         "empty",
         "empty",
