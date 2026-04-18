@@ -1,152 +1,64 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "./TaskTable.module.css";
-import { FiCheck, FiX, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
-import { apiFetch } from "../../utils/api";
+import { FiCheck, FiTrash2, FiPlus } from "react-icons/fi";
+import API from "../../utils/api";
 
+const TaskTable = ({ tasks, refreshTasks, editable = true }) => {
 
-// Generate current week dates (Today Page)
-const getWeekDates = () => {
-  const today = new Date();
-  const week = [];
-  const options = { weekday: "short" };
-
-  const day = today.getDay();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    week.push({
-      label: d.toLocaleDateString("en-US", options),
-      date: d.getDate()
-    });
-  }
-  return week;
-};
-
-// Generate week dates from archived WeekKey (History Page)
-const getDatesFromWeekKey = (weekKey) => {
-  const [year, wk] = weekKey.split("-W").map(Number);
-  const d = new Date(year, 0, 1);
-  const day = d.getDay();
-  const diff = (wk - 1) * 7 + (day <= 4 ? 1 - day : 8 - day);
-  d.setDate(d.getDate() + diff);
-
-  const arr = [];
-  for (let i = 0; i < 7; i++) {
-    const dt = new Date(d);
-    dt.setDate(d.getDate() + i);
-    arr.push({
-      label: dt.toLocaleDateString("en-US", { weekday: "short" }),
-      date: dt.getDate()
-    });
-  }
-  return arr;
-};
-
-const TaskTable = ({ tasks, setTasks, editable = true, weekKey }) => {
-
-  // Fetch tasks only in Today Page (editable)
-  useEffect(() => {
-    if (!editable) return;
-    apiFetch("/tasks")
-      .then(res => res.json())
-      .then(data => setTasks(data))
-      .catch(err => console.error("Error loading tasks:", err));
-  }, [editable, setTasks]);
-
-  // Save only in editable mode
-  const save = (updatedTasks) => {
-    if (!editable) return;
-    apiFetch("/tasks", {
-  method: "POST",
-  body: JSON.stringify(updatedTasks)
-});
-
-  };
-
-  const addTask = () => {
-    if (!editable) return;
-    const name = prompt("Enter new task:");
-    if (!name) return;
-    const newTask = { id: Date.now(), task: name, days: Array(7).fill("empty") };
-
-    setTasks(prev => {
-      const updated = [...prev, newTask];
-      save(updated);
-      return updated;
-    });
-  };
-
-  const editTask = (id) => {
-    if (!editable) return;
-    const name = prompt("Rename task:");
-    if (!name) return;
-
-    setTasks(prev => {
-      const updated = prev.map(t => t.id === id ? { ...t, task: name } : t);
-      save(updated);
-      return updated;
-    });
-  };
-
-  const deleteTask = (id) => {
-    if (!editable) return;
-    setTasks(prev => {
-      const updated = prev.filter(t => t.id !== id);
-      save(updated);
-      return updated;
-    });
-  };
-
-  const toggleDay = (taskId, dayIndex) => {
+  // ✅ CREATE TASK
+  const addTask = async () => {
     if (!editable) return;
 
-    setTasks(prev => {
-      const updated = prev.map(t => {
-        if (t.id !== taskId) return t;
+    const title = prompt("Enter task name:");
+    if (!title) return;
 
-        const sequence = ["empty", "done", "miss"];
-        const next = sequence[(sequence.indexOf(t.days[dayIndex]) + 1) % sequence.length];
-
-        return { ...t, days: t.days.map((d, i) => (i === dayIndex ? next : d)) };
+    try {
+      await API.post("/api/tasks", {
+        title,
+        status: "pending",
+        priority: "medium",
+        category: "General"
       });
 
-      save(updated);
-      return updated;
-    });
+      refreshTasks();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const computeAverage = (days) => {
-    const done = days.filter(d => d === "done").length;
-    const miss = days.filter(d => d === "miss").length;
-    const empty = days.filter(d => d === "empty").length;
-    const total = done + miss + empty;
-    if (total === 0) return "--";
-    return Math.round((done / total) * 100) + "%";
+  // ✅ MARK COMPLETE
+  const markComplete = async (id, currentStatus) => {
+    if (!editable) return;
+
+    try {
+      await API.put(`/api/tasks/${id}`, {
+        status: currentStatus === "completed" ? "pending" : "completed"
+      });
+
+      refreshTasks();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const computeDailyAverage = (tasks, dayIndex) => {
-    let done = 0, miss = 0, empty = 0;
-    tasks.forEach(t => {
-      if (t.days[dayIndex] === "done") done++;
-      if (t.days[dayIndex] === "miss") miss++;
-      if (t.days[dayIndex] === "empty") empty++;
-    });
+  // ✅ DELETE TASK
+  const deleteTask = async (id) => {
+    if (!editable) return;
 
-    const total = done + miss + empty;
-    if (total === 0) return "--";
-    return Math.round((done / total) * 100) + "%";
+    try {
+      await API.delete(`/api/tasks/${id}`);
+      refreshTasks();
+    } catch (err) {
+      console.error(err);
+    }
   };
-
-  // Choose dates source based on mode
-  const weekDays = weekKey ? getDatesFromWeekKey(weekKey) : getWeekDates();
 
   return (
     <div className={styles.wrapper}>
+
+      {/* HEADER */}
       <div className={styles.headerRow}>
-        <h2 className={styles.title}>Tasks List</h2>
+        <h2 className={styles.title}>Tasks</h2>
 
         {editable && (
           <button className={styles.addBtn} onClick={addTask}>
@@ -155,69 +67,65 @@ const TaskTable = ({ tasks, setTasks, editable = true, weekKey }) => {
         )}
       </div>
 
+      {/* TASK LIST */}
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Tasks</th>
-
-              {weekDays.map((d, idx) => (
-                <th key={idx}>
-                  {d.label} <span className={styles.date}>({d.date})</span>
-                </th>
-              ))}
-
-              <th>Average</th>
+              <th>#</th>
+              <th>Task</th>
+              <th>Status</th>
+              <th>Priority</th>
               {editable && <th>Actions</th>}
             </tr>
           </thead>
 
           <tbody>
-            {tasks.map((item, i) => (
-              <tr key={item.id}>
-                <td>{i + 1}</td>
-                <td>{item.task}</td>
+            {tasks.map((task, index) => (
+              <tr key={task._id}>
+                <td>{index + 1}</td>
 
-                {item.days.map((d, idx) => (
-                  <td
-                    key={idx}
-                    onClick={editable ? () => toggleDay(item.id, idx) : undefined}
+                <td>{task.title}</td>
+
+                <td>
+                  <span
+                    className={
+                      task.status === "completed"
+                        ? styles.completed
+                        : styles.pending
+                    }
                   >
-                    {d === "done" && <span className={`${styles.btn} ${styles.done}`}><FiCheck /></span>}
-                    {d === "miss" && <span className={`${styles.btn} ${styles.miss}`}><FiX /></span>}
-                    {d === "empty" && <span className={styles.btn}></span>}
-                  </td>
-                ))}
+                    {task.status}
+                  </span>
+                </td>
 
-                <td>{computeAverage(item.days)}</td>
+                <td>
+                  <span className={styles.priority}>
+                    {task.priority || "medium"}
+                  </span>
+                </td>
 
                 {editable && (
                   <td className={styles.actions}>
-                    <FiEdit2 onClick={() => editTask(item.id)} className={styles.edit} />
-                    <FiTrash2 onClick={() => deleteTask(item.id)} className={styles.del} />
+                    <FiCheck
+                      className={styles.complete}
+                      onClick={() => markComplete(task._id, task.status)}
+                    />
+
+                    <FiTrash2
+                      className={styles.delete}
+                      onClick={() => deleteTask(task._id)}
+                    />
                   </td>
                 )}
               </tr>
             ))}
           </tbody>
-
-          <tfoot>
-            <tr>
-              <td></td>
-              <td className={styles.footerLabel}>Daily Average</td>
-
-              {weekDays.map((d, idx) => (
-                <td key={idx} className={styles.footerCell}>
-                  {computeDailyAverage(tasks, idx)}
-                </td>
-              ))}
-
-              <td></td>
-              {editable && <td></td>}
-            </tr>
-          </tfoot>
         </table>
+
+        {tasks.length === 0 && (
+          <p className={styles.empty}>No tasks found</p>
+        )}
       </div>
     </div>
   );

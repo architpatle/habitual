@@ -1,80 +1,68 @@
-import React, {useEffect, useState} from 'react'
-import styles from './Today.module.css'
-import ScoreCard from '../../components/ScoreCard/ScoreCard'
-import TaskTable from '../../components/TaskTable/TaskTable'
-import { apiFetch } from "../../utils/api";
-
+import React, { useEffect, useState } from "react";
+import styles from "./Today.module.css";
+import ScoreCard from "../../components/ScoreCard/ScoreCard";
+import TaskTable from "../../components/TaskTable/TaskTable";
+import API from "../../utils/api";
 
 const Today = () => {
-    const [tasks,
-        setTasks] = useState([])
+  const [tasks, setTasks] = useState([]);
 
-    useEffect(() => {
-        apiFetch("/tasks")
-            .then(res => res.json())
-            .then(data => setTasks(data))
-    }, [])
+  // 🔥 Fetch Current Week Tasks
+  const fetchTasks = async () => {
+    try {
+      const { data } = await API.get("/api/tasks/current");
+      setTasks(data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
 
-    const todayIndex = new Date().getDay() === 0
-        ? 6
-        : new Date().getDay() - 1
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-    const computeTodayScore = () => {
-  let done = 0, miss = 0, empty = 0;
+  // 🧠 TODAY SCORE (based on completion)
+  const computeTodayScore = () => {
+    if (tasks.length === 0) return "--";
 
-  tasks.forEach(t => {
-    if (t.days[todayIndex] === "done") done++;
-    if (t.days[todayIndex] === "miss") miss++;
-    if (t.days[todayIndex] === "empty") empty++;
-  });
+    const completed = tasks.filter(t => t.status === "completed").length;
+    const total = tasks.length;
 
-  const total = done + miss + empty;
-  if (total === 0) return "--";
+    return Math.round((completed / total) * 100);
+  };
 
-  return Math.round((done / total) * 100);
+  // 🧠 WEEK SCORE (same as today for now)
+  const computeWeekScore = () => {
+    if (tasks.length === 0) return "--";
+
+    const completed = tasks.filter(t => t.status === "completed").length;
+    const total = tasks.length;
+
+    return Math.round((completed / total) * 100);
+  };
+
+  const todayScore = computeTodayScore();
+  const weekScore = computeWeekScore();
+
+  return (
+    <div>
+      <div className={styles.scores}>
+        <ScoreCard
+          heading="Today’s Score"
+          score={todayScore}
+          color={todayScore > 50 ? "green" : "red"}
+        />
+        <ScoreCard
+          heading="Week's Score"
+          score={weekScore}
+          color={weekScore > 50 ? "green" : "red"}
+        />
+      </div>
+
+      {/* 🔥 Pass fetchTasks so table can refresh */}
+      <TaskTable tasks={tasks} setTasks={setTasks} refreshTasks={fetchTasks} />
+    </div>
+  );
 };
 
-
-    const computeWeekScore = () => {
-  let done = 0, miss = 0, empty = 0;
-
-  tasks.forEach(t => {
-    t.days.forEach(d => {
-      if (d === "done") done++;
-      if (d === "miss") miss++;
-      if (d === "empty") empty++;
-    });
-  });
-
-  const total = done + miss + empty;
-  if (total === 0) return "--";
-
-  return Math.round((done / total) * 100);
-};
-
-
-    const todayScore = computeTodayScore()
-    const weekScore = computeWeekScore()
-
-    return (
-        <div>
-            <div className={styles.scores}>
-                <ScoreCard
-                    heading="Today’s Score"
-                    score={todayScore}
-                    color={todayScore > 50
-                    ? "green"
-                    : "red"}/>
-                <ScoreCard
-                    heading="Week's Score"
-                    score={weekScore}
-                    color={weekScore > 50
-                    ? "green"
-                    : "red"}/>
-            </div>
-            <TaskTable tasks={tasks} setTasks={setTasks}/>
-        </div>
-    )
-}
-
-export default Today
+export default Today;

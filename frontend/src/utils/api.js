@@ -1,23 +1,30 @@
-const API_URL = "http://localhost:5000";
+import axios from "axios";
 
-export const apiFetch = async (url, options = {}) => {
+const API = axios.create({
+  baseURL: "http://localhost:5000"
+});
+
+// 🔐 Attach token (future-ready)
+API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(API_URL + url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...(options.headers || {})
-    }
-  });
-
-  // Auto logout if token expired
-  if (res.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-    return;
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
   }
 
-  return res;
-};
+  return req;
+});
+
+// ⚠️ Handle auth errors (disabled for now)
+API.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (error.response?.status === 401) {
+      console.warn("Unauthorized (ignored for now)");
+      // later you can enable redirect
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default API;
