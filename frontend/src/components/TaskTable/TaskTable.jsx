@@ -1,56 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./TaskTable.module.css";
-import { FiCheck, FiTrash2, FiPlus } from "react-icons/fi";
-import API from "../../utils/api";
+import { FiTrash2, FiPlus } from "react-icons/fi";
 
-const TaskTable = ({ tasks, refreshTasks, editable = true }) => {
+const daysLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // ✅ CREATE TASK
-  const addTask = async () => {
-    if (!editable) return;
+const TaskTable = () => {
+  const [tasks, setTasks] = useState([]);
 
+  // ➕ ADD TASK
+  const addTask = () => {
     const title = prompt("Enter task name:");
     if (!title) return;
 
-    try {
-      await API.post("/api/tasks", {
-        title,
-        status: "pending",
-        priority: "medium",
-        category: "General"
-      });
+    const newTask = {
+      id: Date.now(),
+      title,
+      days: Array(7).fill("empty") // 🔥 tri-state
+    };
 
-      refreshTasks();
-    } catch (err) {
-      console.error(err);
-    }
+    setTasks(prev => [...prev, newTask]);
   };
 
-  // ✅ MARK COMPLETE
-  const markComplete = async (id, currentStatus) => {
-    if (!editable) return;
-
-    try {
-      await API.put(`/api/tasks/${id}`, {
-        status: currentStatus === "completed" ? "pending" : "completed"
-      });
-
-      refreshTasks();
-    } catch (err) {
-      console.error(err);
-    }
+  // ❌ DELETE TASK
+  const deleteTask = (id) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
   };
 
-  // ✅ DELETE TASK
-  const deleteTask = async (id) => {
-    if (!editable) return;
+  // 🔁 TRI-STATE TOGGLE
+  const toggleDay = (taskId, dayIndex) => {
+    setTasks(prev =>
+      prev.map(task => {
+        if (task.id !== taskId) return task;
 
-    try {
-      await API.delete(`/api/tasks/${id}`);
-      refreshTasks();
-    } catch (err) {
-      console.error(err);
-    }
+        const sequence = ["empty", "done", "miss"];
+        const current = task.days[dayIndex];
+        const next = sequence[(sequence.indexOf(current) + 1) % 3];
+
+        const updatedDays = [...task.days];
+        updatedDays[dayIndex] = next;
+
+        return { ...task, days: updatedDays };
+      })
+    );
+  };
+
+  // 📊 TASK AVG
+  const computeTaskAvg = (days) => {
+    const done = days.filter(d => d === "done").length;
+    return Math.round((done / 7) * 100);
+  };
+
+  // 📊 DAILY AVG
+  const computeDailyAvg = (dayIndex) => {
+    if (tasks.length === 0) return "--";
+
+    let done = 0;
+    tasks.forEach(t => {
+      if (t.days[dayIndex] === "done") done++;
+    });
+
+    return Math.round((done / tasks.length) * 100) + "%";
   };
 
   return (
@@ -58,73 +67,87 @@ const TaskTable = ({ tasks, refreshTasks, editable = true }) => {
 
       {/* HEADER */}
       <div className={styles.headerRow}>
-        <h2 className={styles.title}>Tasks</h2>
+        <h2 className={styles.title}>Weekly Habit Tracker</h2>
 
-        {editable && (
-          <button className={styles.addBtn} onClick={addTask}>
-            <FiPlus /> Add Task
-          </button>
-        )}
+        <button className={styles.addBtn} onClick={addTask}>
+          <FiPlus /> Add Task
+        </button>
       </div>
 
-      {/* TASK LIST */}
+      {/* TABLE */}
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
+
           <thead>
             <tr>
               <th>#</th>
               <th>Task</th>
-              <th>Status</th>
-              <th>Priority</th>
-              {editable && <th>Actions</th>}
+
+              {daysLabels.map((d, i) => (
+                <th key={i}>{d}</th>
+              ))}
+
+              <th>Avg</th>
+              <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {tasks.map((task, index) => (
-              <tr key={task._id}>
+              <tr key={task.id}>
                 <td>{index + 1}</td>
-
                 <td>{task.title}</td>
 
-                <td>
-                  <span
-                    className={
-                      task.status === "completed"
-                        ? styles.completed
-                        : styles.pending
-                    }
-                  >
-                    {task.status}
-                  </span>
-                </td>
-
-                <td>
-                  <span className={styles.priority}>
-                    {task.priority || "medium"}
-                  </span>
-                </td>
-
-                {editable && (
-                  <td className={styles.actions}>
-                    <FiCheck
-                      className={styles.complete}
-                      onClick={() => markComplete(task._id, task.status)}
-                    />
-
-                    <FiTrash2
-                      className={styles.delete}
-                      onClick={() => deleteTask(task._id)}
-                    />
+                {task.days.map((d, i) => (
+                  <td key={i}>
+                    <div
+                      className={`${styles.cell} ${
+                        d === "done"
+                          ? styles.done
+                          : d === "miss"
+                          ? styles.miss
+                          : styles.empty
+                      }`}
+                      onClick={() => toggleDay(task.id, i)}
+                    >
+                      {d === "done" && "✓"}
+                      {d === "miss" && "✕"}
+                      {d === "empty" && "–"}
+                    </div>
                   </td>
-                )}
+                ))}
+
+                <td>{computeTaskAvg(task.days)}%</td>
+
+                <td>
+                  <FiTrash2
+                    className={styles.delete}
+                    onClick={() => deleteTask(task.id)}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
+
+          {/* FOOTER */}
+          <tfoot>
+            <tr>
+              <td></td>
+              <td className={styles.footerLabel}>Daily Avg</td>
+
+              {daysLabels.map((_, i) => (
+                <td key={i}>{computeDailyAvg(i)}</td>
+              ))}
+
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+
         </table>
 
         {tasks.length === 0 && (
-          <p className={styles.empty}>No tasks found</p>
+          <p className={styles.emptyText}>No tasks added yet</p>
         )}
       </div>
     </div>

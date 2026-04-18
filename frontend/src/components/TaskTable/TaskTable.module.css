@@ -63,7 +63,6 @@
   padding: 12px 8px;
   font-size: 14px;
   font-weight: 500;
-  /* opacity: 0.85; */
   text-align: left;
   background: rgba(5, 9, 37);
   backdrop-filter: blur(4px);
@@ -79,7 +78,6 @@
 
 /* ACTION BUTTONS */
 .actions {
-  /* display: flex; */
   align-items: center;
   gap: 12px;
   padding: 10px 8px;
@@ -88,7 +86,6 @@
 .edit {
   color: #ffc107;
   margin-right: 15px;
-
   cursor: pointer;
 }
 
@@ -97,28 +94,53 @@
   cursor: pointer;
 }
 
-/* TOGGLE BUTTON STATES */
-.btn {
-  display: inline-flex;
+/* 🔥 NEW TRI-STATE CELL */
+.cell {
+  display: flex;
   justify-content: center;
   align-items: center;
   width: 38px;
-  height: 25px;
+  height: 28px;
   border-radius: 8px;
   font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.done {
-  background: #28a745;
-  border: none;
-  color: white;
+/* EMPTY STATE (dash) */
+.empty {
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
 }
 
-.miss {
-  background: #d9534f;
+.empty:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* DONE STATE (green glow) */
+.done {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
   border: none;
-  color: white;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+.done:hover {
+  transform: scale(1.1);
+}
+
+/* MISS STATE (red glow) */
+.miss {
+  background: rgba(217, 83, 79, 0.2);
+  color: #ff4d4d;
+  border: none;
+  box-shadow: 0 0 8px rgba(217, 83, 79, 0.5);
+}
+
+.miss:hover {
+  transform: scale(1.1);
 }
 
 /* FOOTER (DAILY AVG) */
@@ -133,16 +155,15 @@
 }
 
 .footerLabel {
-  /* opacity: 0.9; */
   font-weight: 600;
 }
 
 .footerCell {
   font-weight: 600;
   color: #00c46a;
-  /* success green */
 }
 
+/* DATE */
 .date {
   opacity: 0.6;
   font-size: 13px;
