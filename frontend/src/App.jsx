@@ -5,19 +5,13 @@ import "./App.css";
 import Today from "./pages/Today/Today";
 import History from "./pages/History/History";
 import Stats from "./pages/Stats/Stats";
-import Login from "./pages/Login/Login";
+// import Login from "./pages/Login/Login"; ❌ removed
 
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
 
-// 🔐 Route Guard
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" replace />;
-};
-
-// 🧱 Layout Wrapper (only for authenticated pages)
-const ProtectedLayout = ({ children }) => {
+// 🧱 Layout Wrapper (applies to all pages now)
+const Layout = ({ children }) => {
   return (
     <div className="layout">
       <Sidebar />
@@ -36,40 +30,31 @@ const App = () => {
     <Router>
       <Routes>
 
-        {/* 🔓 Public Route */}
-        <Route path="/login" element={<Login />} />
-
-        {/* 🔐 Protected Routes */}
+        {/* 🟢 Direct Routes (No Auth) */}
         <Route
           path="/"
           element={
-            <PrivateRoute>
-              <ProtectedLayout>
-                <Today />
-              </ProtectedLayout>
-            </PrivateRoute>
+            <Layout>
+              <Today />
+            </Layout>
           }
         />
 
         <Route
           path="/history"
           element={
-            <PrivateRoute>
-              <ProtectedLayout>
-                <History />
-              </ProtectedLayout>
-            </PrivateRoute>
+            <Layout>
+              <History />
+            </Layout>
           }
         />
 
         <Route
           path="/stats"
           element={
-            <PrivateRoute>
-              <ProtectedLayout>
-                <Stats />
-              </ProtectedLayout>
-            </PrivateRoute>
+            <Layout>
+              <Stats />
+            </Layout>
           }
         />
 
