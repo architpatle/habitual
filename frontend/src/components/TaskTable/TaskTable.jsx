@@ -1,20 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./TaskTable.module.css";
 import { FiTrash2, FiPlus, FiEdit2 } from "react-icons/fi";
 
-// 📅 Generate week days with dates
-const getWeekDaysWithDates = () => {
-  const today = new Date();
-  const day = today.getDay();
+// 📅 Generate week days from weekKey
+const getWeekDatesFromKey = (weekKey) => {
+  if (!weekKey) return [];
 
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+  const [year, week] = weekKey.split("-W");
+  const firstDay = new Date(year, 0, 1 + (week - 1) * 7);
 
   const days = [];
-
   for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
+    const d = new Date(firstDay);
+    d.setDate(firstDay.getDate() + i);
 
     days.push({
       label: d.toLocaleDateString("en-US", { weekday: "short" }),
@@ -25,12 +23,29 @@ const getWeekDaysWithDates = () => {
   return days;
 };
 
-const TaskTable = () => {
-  const [tasks, setTasks] = useState([]);
-  const weekDays = getWeekDaysWithDates();
+const TaskTable = ({
+  tasks = [],
+  editable = true,
+  allowToggle = true,
+  weekKey
+}) => {
+
+  const [localTasks, setLocalTasks] = useState(tasks);
+
+  // 🔁 Sync props → local state
+  useEffect(() => {
+    setLocalTasks(tasks);
+  }, [tasks]);
+
+  const data = editable ? localTasks : localTasks; 
+  // 🔥 Always use localTasks so toggle works in History
+
+  const weekDays = getWeekDatesFromKey(weekKey);
 
   // ➕ ADD TASK
   const addTask = () => {
+    if (!editable) return;
+
     const title = prompt("Enter task name:");
     if (!title) return;
 
@@ -40,15 +55,17 @@ const TaskTable = () => {
       days: Array(7).fill("empty")
     };
 
-    setTasks(prev => [...prev, newTask]);
+    setLocalTasks(prev => [...prev, newTask]);
   };
 
   // ✏️ EDIT TASK
   const editTask = (id) => {
+    if (!editable) return;
+
     const newName = prompt("Edit task name:");
     if (!newName) return;
 
-    setTasks(prev =>
+    setLocalTasks(prev =>
       prev.map(task =>
         task.id === id ? { ...task, title: newName } : task
       )
@@ -57,12 +74,16 @@ const TaskTable = () => {
 
   // ❌ DELETE TASK
   const deleteTask = (id) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+    if (!editable) return;
+
+    setLocalTasks(prev => prev.filter(t => t.id !== id));
   };
 
-  // 🔁 TRI-STATE TOGGLE
+  // 🔁 FIXED TOGGLE (FINAL)
   const toggleDay = (taskId, dayIndex) => {
-    setTasks(prev =>
+    if (!allowToggle) return;
+
+    setLocalTasks(prev =>
       prev.map(task => {
         if (task.id !== taskId) return task;
 
@@ -86,14 +107,14 @@ const TaskTable = () => {
 
   // 📊 DAILY AVG
   const computeDailyAvg = (dayIndex) => {
-    if (tasks.length === 0) return "--";
+    if (data.length === 0) return "--";
 
     let done = 0;
-    tasks.forEach(t => {
+    data.forEach(t => {
       if (t.days[dayIndex] === "done") done++;
     });
 
-    return Math.round((done / tasks.length) * 100) + "%";
+    return Math.round((done / data.length) * 100) + "%";
   };
 
   return (
@@ -103,9 +124,11 @@ const TaskTable = () => {
       <div className={styles.headerRow}>
         <h2 className={styles.title}>Weekly Habit Tracker</h2>
 
-        <button className={styles.addBtn} onClick={addTask}>
-          <FiPlus /> Add Task
-        </button>
+        {editable && (
+          <button className={styles.addBtn} onClick={addTask}>
+            <FiPlus /> Add Task
+          </button>
+        )}
       </div>
 
       {/* TABLE */}
@@ -117,7 +140,6 @@ const TaskTable = () => {
               <th>#</th>
               <th>Task</th>
 
-              {/* ✅ DAY + DATE */}
               {weekDays.map((d, i) => (
                 <th key={i}>
                   {d.label}
@@ -126,12 +148,12 @@ const TaskTable = () => {
               ))}
 
               <th>Avg</th>
-              <th>Actions</th>
+              {editable && <th>Actions</th>}
             </tr>
           </thead>
 
           <tbody>
-            {tasks.map((task, index) => (
+            {data.map((task, index) => (
               <tr key={task.id}>
                 <td>{index + 1}</td>
                 <td>{task.title}</td>
@@ -157,28 +179,21 @@ const TaskTable = () => {
 
                 <td>{computeTaskAvg(task.days)}%</td>
 
-                <td className={styles.actions}>
-                  <FiEdit2
-                    className={styles.edit}
-                    onClick={() => editTask(task.id)}
-                  />
-
-                  <FiTrash2
-                    className={styles.del}
-                    onClick={() => deleteTask(task.id)}
-                  />
-                </td>
+                {editable && (
+                  <td className={styles.actions}>
+                    <FiEdit2 onClick={() => editTask(task.id)} />
+                    <FiTrash2 onClick={() => deleteTask(task.id)} />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
 
-          {/* FOOTER */}
           <tfoot>
             <tr>
               <td></td>
               <td className={styles.footerLabel}>Daily Avg</td>
 
-              {/* ✅ FIXED */}
               {weekDays.map((_, i) => (
                 <td key={i} className={styles.footerCell}>
                   {computeDailyAvg(i)}
@@ -186,14 +201,14 @@ const TaskTable = () => {
               ))}
 
               <td></td>
-              <td></td>
+              {editable && <td></td>}
             </tr>
           </tfoot>
 
         </table>
 
-        {tasks.length === 0 && (
-          <p className={styles.emptyText}>No tasks added yet</p>
+        {data.length === 0 && (
+          <p className={styles.emptyText}>No tasks available</p>
         )}
       </div>
     </div>

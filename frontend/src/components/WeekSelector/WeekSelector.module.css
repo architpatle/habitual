@@ -1,0 +1,65 @@
+.wrapper {
+  width: 300px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+/* LABEL */
+.label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+
+/* SELECT BOX */
+.selectBox {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #0b1437;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.selectBox:hover {
+  border-color: #4c7dff;
+}
+
+/* ARROW */
+.arrow {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* DROPDOWN PANEL */
+.dropdown {
+  position: absolute;
+  top: 110%;
+  width: 100%;
+  background: #0b1437;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+/* OPTION */
+.option {
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+}
+
+.option:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ACTIVE */
+.active {
+  background: #0048FF;
+}
