@@ -1,11 +1,33 @@
 import React, { useState } from "react";
 import styles from "./TaskTable.module.css";
-import { FiTrash2, FiPlus } from "react-icons/fi";
+import { FiTrash2, FiPlus, FiEdit2 } from "react-icons/fi";
 
-const daysLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// 📅 Generate week days with dates
+const getWeekDaysWithDates = () => {
+  const today = new Date();
+  const day = today.getDay();
+
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+
+  const days = [];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+
+    days.push({
+      label: d.toLocaleDateString("en-US", { weekday: "short" }),
+      date: d.getDate()
+    });
+  }
+
+  return days;
+};
 
 const TaskTable = () => {
   const [tasks, setTasks] = useState([]);
+  const weekDays = getWeekDaysWithDates();
 
   // ➕ ADD TASK
   const addTask = () => {
@@ -15,10 +37,22 @@ const TaskTable = () => {
     const newTask = {
       id: Date.now(),
       title,
-      days: Array(7).fill("empty") // 🔥 tri-state
+      days: Array(7).fill("empty")
     };
 
     setTasks(prev => [...prev, newTask]);
+  };
+
+  // ✏️ EDIT TASK
+  const editTask = (id) => {
+    const newName = prompt("Edit task name:");
+    if (!newName) return;
+
+    setTasks(prev =>
+      prev.map(task =>
+        task.id === id ? { ...task, title: newName } : task
+      )
+    );
   };
 
   // ❌ DELETE TASK
@@ -83,8 +117,12 @@ const TaskTable = () => {
               <th>#</th>
               <th>Task</th>
 
-              {daysLabels.map((d, i) => (
-                <th key={i}>{d}</th>
+              {/* ✅ DAY + DATE */}
+              {weekDays.map((d, i) => (
+                <th key={i}>
+                  {d.label}
+                  <div className={styles.date}>({d.date})</div>
+                </th>
               ))}
 
               <th>Avg</th>
@@ -119,9 +157,14 @@ const TaskTable = () => {
 
                 <td>{computeTaskAvg(task.days)}%</td>
 
-                <td>
+                <td className={styles.actions}>
+                  <FiEdit2
+                    className={styles.edit}
+                    onClick={() => editTask(task.id)}
+                  />
+
                   <FiTrash2
-                    className={styles.delete}
+                    className={styles.del}
                     onClick={() => deleteTask(task.id)}
                   />
                 </td>
@@ -135,8 +178,11 @@ const TaskTable = () => {
               <td></td>
               <td className={styles.footerLabel}>Daily Avg</td>
 
-              {daysLabels.map((_, i) => (
-                <td key={i}>{computeDailyAvg(i)}</td>
+              {/* ✅ FIXED */}
+              {weekDays.map((_, i) => (
+                <td key={i} className={styles.footerCell}>
+                  {computeDailyAvg(i)}
+                </td>
               ))}
 
               <td></td>
