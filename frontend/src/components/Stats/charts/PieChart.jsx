@@ -17,10 +17,15 @@ const PieChartComp = ({ tasks }) => {
   ];
 
   return (
-    <PieChart width={300} height={250}>
-      <Pie data={data} dataKey="value" outerRadius={80} fill="#00ff88" />
-      <Tooltip />
-    </PieChart>
+    <PieChart width={260} height={220}>
+  <Pie
+    data={data}
+    dataKey="value"
+    outerRadius={80}
+    fill="#00ff88"
+  />
+  <Tooltip />
+</PieChart>
   );
 };
 

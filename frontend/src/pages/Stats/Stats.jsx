@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Stats.module.css";
+
 import DateRangePicker from "../../components/Stats/DateRangePicker";
 import LineChartComp from "../../components/Stats/charts/LineChart";
 import BarChartComp from "../../components/Stats/charts/BarChart";
@@ -7,42 +8,53 @@ import PieChartComp from "../../components/Stats/charts/PieChart";
 
 const Stats = () => {
   const [tasks, setTasks] = useState([]);
-  const [range, setRange] = useState({
-    start: "",
-    end: ""
-  });
+  const [range, setRange] = useState({ start: "", end: "" });
 
-  // 🔥 MOCK DATA (replace later with backend)
   useEffect(() => {
     const mockData = [
       {
         title: "Gym",
-        weekKey: "2026-W16",
         days: ["done", "done", "miss", "done", "empty", "done", "miss"]
       },
       {
         title: "Study",
-        weekKey: "2026-W16",
         days: ["done", "done", "done", "done", "done", "empty", "empty"]
       }
     ];
-
     setTasks(mockData);
   }, []);
 
   return (
     <div className={styles.container}>
 
-      {/* 📅 FILTER */}
-      <DateRangePicker range={range} setRange={setRange} />
-
-      {/* 📊 CHARTS */}
-      <div className={styles.grid}>
-        <LineChartComp tasks={tasks} />
-        <BarChartComp tasks={tasks} />
-        <PieChartComp tasks={tasks} />
+      {/* 🔥 FILTER CARD */}
+      <div className={styles.card}>
+        <h3 className={styles.cardTitle}>Filter by Date Range</h3>
+        <DateRangePicker range={range} setRange={setRange} />
       </div>
 
+      {/* 🔥 CHART GRID */}
+      <div className={styles.grid}>
+
+        {/* Row 1 */}
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Completion Distribution</h3>
+          <PieChartComp tasks={tasks} />
+        </div>
+
+        
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Daily Completion Trend</h3>
+          <LineChartComp tasks={tasks} />
+        </div>
+
+        {/* Row 2 (FULL WIDTH) */}
+       <div className={`${styles.card} ${styles.fullWidth}`}>
+          <h3 className={styles.cardTitle}>Task Performance</h3>
+          <BarChartComp tasks={tasks} />
+        </div>
+
+      </div>
     </div>
   );
 };
