@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import styles from "./TaskTable.module.css";
 import { FiTrash2, FiPlus, FiEdit2 } from "react-icons/fi";
+import TaskModal from "../TaskModal/TaskModal";
+
+// 📅 Get current week key
+const getCurrentWeekKey = () => {
+  const now = new Date();
+  const oneJan = new Date(now.getFullYear(), 0, 1);
+  const week = Math.ceil(((now - oneJan) / 86400000 + oneJan.getDay() + 1) / 7);
+
+  return `${now.getFullYear()}-W${week}`;
+};
 
 // 📅 Generate week days from weekKey
 const getWeekDatesFromKey = (weekKey) => {
@@ -31,55 +41,64 @@ const TaskTable = ({
 }) => {
 
   const [localTasks, setLocalTasks] = useState(tasks);
+  const [showModal, setShowModal] = useState(false);
+
+  // 🔥 NEW STATES FOR MODAL CONTROL
+  const [modalMode, setModalMode] = useState("add");
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [initialValue, setInitialValue] = useState("");
 
   // 🔁 Sync props → local state
   useEffect(() => {
     setLocalTasks(tasks);
   }, [tasks]);
 
-  const data = editable ? localTasks : localTasks; 
-  // 🔥 Always use localTasks so toggle works in History
+  const data = localTasks;
 
-  const weekDays = getWeekDatesFromKey(weekKey);
+  // ✅ FIX: fallback to current week
+  const effectiveWeekKey = weekKey || getCurrentWeekKey();
+  const weekDays = getWeekDatesFromKey(effectiveWeekKey);
 
-  // ➕ ADD TASK
-  const addTask = () => {
-    if (!editable) return;
+  // ➕ / ✏️ SAVE HANDLER (ADD + EDIT)
+  const handleSaveTask = (title) => {
+    if (modalMode === "add") {
+      const newTask = {
+        id: Date.now(),
+        title,
+        days: Array(7).fill("empty"),
+        weekKey: effectiveWeekKey
+      };
 
-    const title = prompt("Enter task name:");
-    if (!title) return;
+      setLocalTasks(prev => [...prev, newTask]);
 
-    const newTask = {
-      id: Date.now(),
-      title,
-      days: Array(7).fill("empty")
-    };
-
-    setLocalTasks(prev => [...prev, newTask]);
+    } else if (modalMode === "edit") {
+      setLocalTasks(prev =>
+        prev.map(task =>
+          task.id === editingTaskId
+            ? { ...task, title }
+            : task
+        )
+      );
+    }
   };
 
-  // ✏️ EDIT TASK
-  const editTask = (id) => {
+  // ✏️ OPEN EDIT MODAL
+  const editTask = (task) => {
     if (!editable) return;
 
-    const newName = prompt("Edit task name:");
-    if (!newName) return;
-
-    setLocalTasks(prev =>
-      prev.map(task =>
-        task.id === id ? { ...task, title: newName } : task
-      )
-    );
+    setModalMode("edit");
+    setEditingTaskId(task.id);
+    setInitialValue(task.title);
+    setShowModal(true);
   };
 
   // ❌ DELETE TASK
   const deleteTask = (id) => {
     if (!editable) return;
-
     setLocalTasks(prev => prev.filter(t => t.id !== id));
   };
 
-  // 🔁 FIXED TOGGLE (FINAL)
+  // 🔁 TOGGLE DAY
   const toggleDay = (taskId, dayIndex) => {
     if (!allowToggle) return;
 
@@ -125,8 +144,15 @@ const TaskTable = ({
         <h2 className={styles.title}>Weekly Habit Tracker</h2>
 
         {editable && (
-          <button className={styles.addBtn} onClick={addTask}>
-            <FiPlus /> Add Task
+          <button
+            className={styles.addBtn}
+            onClick={() => {
+              setModalMode("add");
+              setInitialValue("");
+              setShowModal(true);
+            }}
+          >
+            Add Task
           </button>
         )}
       </div>
@@ -181,8 +207,8 @@ const TaskTable = ({
 
                 {editable && (
                   <td className={styles.actions}>
-                    <FiEdit2 onClick={() => editTask(task.id)} />
-                    <FiTrash2 onClick={() => deleteTask(task.id)} />
+                    <FiEdit2 className={styles.edit} onClick={() => editTask(task)} />
+                    <FiTrash2 className={styles.del} onClick={() => deleteTask(task.id)} />
                   </td>
                 )}
               </tr>
@@ -211,6 +237,15 @@ const TaskTable = ({
           <p className={styles.emptyText}>No tasks available</p>
         )}
       </div>
+
+      {/* 🔥 MODAL (ADD + EDIT) */}
+      <TaskModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={handleSaveTask}
+        mode={modalMode}
+        initialValue={initialValue}
+      />
     </div>
   );
 };
