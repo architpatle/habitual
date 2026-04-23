@@ -45,7 +45,7 @@ const Today = () => {
   const weekScore = computeWeekScore();
 
   return (
-    <div>
+    <div className={styles.container}>
       <div className={styles.scores}>
         <ScoreCard
           heading="Today’s Score"

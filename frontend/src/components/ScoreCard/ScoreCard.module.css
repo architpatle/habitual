@@ -4,8 +4,9 @@
     border: 1px solid rgba(255,255,255,0.1);
     backdrop-filter: blur(4px);
 
-    width: 470px;
-    padding: 50px 35px;
+    width: 100%;
+max-width: 480px;
+padding: 30px 20px;
     border-radius: 20px;
     display: flex;
     justify-content: space-between;
@@ -35,4 +36,25 @@
 
 .green {
     color: #27AE52;
+}
+
+/* 📱 Mobile */
+@media (max-width: 768px) {
+  .scoreCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .icon {
+    font-size: 40px;
+  }
+
+  .text h2 {
+    font-size: 18px;
+  }
+
+  .text p {
+    font-size: 32px;
+  }
 }

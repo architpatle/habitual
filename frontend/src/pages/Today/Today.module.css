@@ -1,6 +1,28 @@
-.scores{
-    display: flex;
-    justify-content: space-between;
-    margin: 15px 0px;
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
+.scores {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 15px 0;
+}
+
+/* 📱 Tablet */
+@media (max-width: 1024px) {
+  .scores {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* 📱 Mobile */
+@media (max-width: 768px) {
+  .scores {
+    flex-direction: column;
+    gap: 12px;
+  }
 }

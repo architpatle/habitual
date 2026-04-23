@@ -14,9 +14,10 @@
 }
 
 body {
-    background: url("./assets/images/bg.png");
-    background-size: cover;
-    color: aliceblue;
+  background: url("./assets/images/bg.png") no-repeat center center;
+  background-size: cover; /* 🔥 fills entire screen */
+  background-attachment: fixed; /* optional: gives premium feel */
 
-    font-family: var(--bodyFont);
+  color: aliceblue;
+  font-family: var(--bodyFont);
 }
