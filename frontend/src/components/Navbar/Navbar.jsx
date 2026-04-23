@@ -1,7 +1,8 @@
 import React from 'react'
 import styles from './Navbar.module.css'
+import { FiMenu } from "react-icons/fi";
 
-const Navbar = () => {
+const Navbar = ({ onMenuClick }) => {
     const date = new Date();
 
     const dateDay = date.toLocaleString('en-GB', {
@@ -12,6 +13,11 @@ const Navbar = () => {
     });
     return (
         <nav className={styles.navbar}>
+            
+            {/* 🔥 Mobile Menu Button */}
+            <div className={styles.menuBtn} onClick={onMenuClick}>
+                <FiMenu />
+            </div>
             <h1 className={styles.heading}>Habitual : Track Your Habit Effectively</h1>
             <div className={styles.dateDay}>
                 {dateDay}

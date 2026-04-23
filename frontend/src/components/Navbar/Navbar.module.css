@@ -1,7 +1,7 @@
 .navbar {
     background-color: #3B466B10;
     background: linear-gradient(135deg, #050925, #071842, #050925);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(4px);
 
     display: flex;
@@ -26,4 +26,16 @@
     padding: 16px 55px;
     border-radius: 12px;
     text-transform: uppercase;
+}
+
+.menuBtn {
+    display: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .menuBtn {
+        display: block;
+    }
 }

@@ -1,26 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 
 import Today from "./pages/Today/Today";
 import History from "./pages/History/History";
 import Stats from "./pages/Stats/Stats";
-// import Login from "./pages/Login/Login"; ❌ removed
 
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
 
-// 🧱 Layout Wrapper (applies to all pages now)
 const Layout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="layout">
-      <Sidebar />
+
+      {/* 🔥 Sidebar */}
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+
       <div className="main">
-        <Navbar />
-        <div className="content">
-          {children}
-        </div>
+        <Navbar onMenuClick={() => setSidebarOpen(true)} />
+        <div className="content">{children}</div>
       </div>
+
     </div>
   );
 };
