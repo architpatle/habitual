@@ -4,14 +4,59 @@ import ScoreCard from "../../components/ScoreCard/ScoreCard";
 import TaskTable from "../../components/TaskTable/TaskTable";
 import API from "../../utils/api";
 
+// 📅 Week Key (backend only)
+const getCurrentWeekKey = () => {
+  const now = new Date();
+
+  const date = new Date(Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  ));
+
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+
+  const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+
+  return `${date.getUTCFullYear()}-W${weekNo}`;
+};
+
+// ✅ SINGLE SOURCE OF TRUTH (UI)
+const getWeekDates = () => {
+  const today = new Date();
+
+  const day = today.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+
+  const days = [];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+
+    days.push({
+      label: d.toLocaleDateString("en-US", { weekday: "short" }),
+      date: d.getDate(),
+      fullDate: d.toDateString()
+    });
+  }
+
+  return days;
+};
+
 const Today = () => {
   const [tasks, setTasks] = useState([]);
 
-  // 🔥 Fetch Current Week Tasks
   const fetchTasks = async () => {
     try {
-      const { data } = await API.get("/api/tasks/current");
-      setTasks(data);
+      const weekKey = getCurrentWeekKey();
+      const response = await API.get(`/api/tasks/current?weekKey=${weekKey}`);
+      setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
@@ -21,46 +66,56 @@ const Today = () => {
     fetchTasks();
   }, []);
 
-  // 🧠 TODAY SCORE (based on completion)
+  // 🔥 TODAY SCORE (CORRECT)
   const computeTodayScore = () => {
     if (tasks.length === 0) return "--";
 
-    const completed = tasks.filter(t => t.status === "completed").length;
-    const total = tasks.length;
+    const weekDays = getWeekDates();
+    const todayStr = new Date().toDateString();
 
-    return Math.round((completed / total) * 100);
+    const todayIndex = weekDays.findIndex(
+      d => d.fullDate === todayStr
+    );
+
+    if (todayIndex === -1) return "--";
+
+    let done = 0;
+
+    tasks.forEach(t => {
+      if (t.days[todayIndex] === "done") done++;
+    });
+
+    return Math.round((done / tasks.length) * 100);
   };
 
-  // 🧠 WEEK SCORE (same as today for now)
+  // 🔥 WEEK SCORE (CORRECT)
   const computeWeekScore = () => {
     if (tasks.length === 0) return "--";
 
-    const completed = tasks.filter(t => t.status === "completed").length;
-    const total = tasks.length;
+    let done = 0;
+    let total = 0;
 
-    return Math.round((completed / total) * 100);
+    tasks.forEach(t => {
+      t.days.forEach(d => {
+        total++;
+        if (d === "done") done++;
+      });
+    });
+
+    return Math.round((done / total) * 100);
   };
-
-  const todayScore = computeTodayScore();
-  const weekScore = computeWeekScore();
 
   return (
     <div className={styles.container}>
       <div className={styles.scores}>
-        <ScoreCard
-          heading="Today’s Score"
-          score={todayScore}
-          color={todayScore > 50 ? "green" : "red"}
-        />
-        <ScoreCard
-          heading="Week's Score"
-          score={weekScore}
-          color={weekScore > 50 ? "green" : "red"}
-        />
+        <ScoreCard heading="Today’s Score" score={computeTodayScore()} color="green" />
+        <ScoreCard heading="Week's Score" score={computeWeekScore()} color="green" />
       </div>
 
-      {/* 🔥 Pass fetchTasks so table can refresh */}
-      <TaskTable tasks={tasks} setTasks={setTasks} refreshTasks={fetchTasks} />
+      <TaskTable
+        tasks={tasks}
+        refreshTasks={fetchTasks}
+      />
     </div>
   );
 };

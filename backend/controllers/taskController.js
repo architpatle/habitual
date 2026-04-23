@@ -1,100 +1,92 @@
 import Task from "../models/Task.js";
-import { getWeekKey } from "../utils/weekHelper.js";
 
-// CREATE
-export const createTask = async (req, res) => {
+// 🧠 GET CURRENT WEEK
+export const getCurrentWeekTasks = async (req, res) => {
   try {
-    const task = await Task.create({
-      ...req.body,
-      weekKey: getWeekKey()
-    });
-    res.status(201).json(task);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    const { weekKey } = req.query;
+
+    const tasks = await Task.find({ weekKey });
+    res.json(tasks);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// GET ALL
-export const getTasks = async (req, res) => {
-  const tasks = await Task.find().sort({ createdAt: -1 });
-  res.json(tasks);
+// ➕ CREATE TASK
+export const createTask = async (req, res) => {
+  try {
+    const { title, weekKey } = req.body;
+
+    const task = new Task({
+      title,
+      weekKey,
+      days: Array(7).fill("empty")
+    });
+
+    const saved = await task.save();
+    res.status(201).json(saved);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// UPDATE
-export const updateTask = async (req, res) => {
-  const task = await Task.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
-  res.json(task);
+// 🔁 UPDATE DAY STATUS
+export const updateTaskDay = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dayIndex, value } = req.body;
+
+    const task = await Task.findById(id);
+
+    task.days[dayIndex] = value;
+    await task.save();
+
+    res.json(task);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// DELETE
+// ❌ DELETE TASK
 export const deleteTask = async (req, res) => {
-  await Task.findByIdAndDelete(req.params.id);
-  res.json({ message: "Task deleted" });
+  try {
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// ✅ CURRENT WEEK
-export const getCurrentWeekTasks = async (req, res) => {
-  const currentWeek = getWeekKey();
-
-  const tasks = await Task.find({ weekKey: currentWeek })
-    .sort({ createdAt: -1 });
-
-  res.json(tasks);
-};
-
-// ✅ HISTORY
+// 📚 HISTORY
 export const getHistoryTasks = async (req, res) => {
-  const currentWeek = getWeekKey();
+  try {
+    const tasks = await Task.find();
+    res.json(tasks);
 
-  const tasks = await Task.find({
-    weekKey: { $ne: currentWeek }
-  }).sort({ weekKey: -1 });
-
-  res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// ✅ STATS
-export const getStats = async (req, res) => {
-  const tasks = await Task.find();
+// Update Task Title
+export const updateTaskTitle = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
 
-  const total = tasks.length;
-  const completed = tasks.filter(t => t.status === "completed").length;
-  const pending = total - completed;
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { title },
+      { new: true }
+    );
 
-  const completionRate = total === 0
-    ? 0
-    : ((completed / total) * 100).toFixed(2);
+    res.json(task);
 
-  res.json({
-    total,
-    completed,
-    pending,
-    completionRate
-  });
-};
-
-// ✅ CARRY FORWARD
-export const carryForwardTasks = async (req, res) => {
-  const currentWeek = getWeekKey();
-
-  const oldTasks = await Task.find({
-    status: "pending",
-    weekKey: { $ne: currentWeek }
-  });
-
-  const updatedTasks = await Promise.all(
-    oldTasks.map(task =>
-      Task.findByIdAndUpdate(
-        task._id,
-        { weekKey: currentWeek },
-        { new: true }
-      )
-    )
-  );
-
-  res.json(updatedTasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

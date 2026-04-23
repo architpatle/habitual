@@ -2,27 +2,44 @@ import React, { useState, useEffect } from "react";
 import styles from "./TaskTable.module.css";
 import { FiTrash2, FiPlus, FiEdit2 } from "react-icons/fi";
 import TaskModal from "../TaskModal/TaskModal";
+import API from "../../utils/api";
 
 // 📅 Get current week key
 const getCurrentWeekKey = () => {
   const now = new Date();
-  const oneJan = new Date(now.getFullYear(), 0, 1);
-  const week = Math.ceil(((now - oneJan) / 86400000 + oneJan.getDay() + 1) / 7);
 
-  return `${now.getFullYear()}-W${week}`;
+  const date = new Date(Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  ));
+
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+
+  const weekNo = Math.ceil(
+    ((date - yearStart) / 86400000 + 1) / 7
+  );
+
+  return `${date.getUTCFullYear()}-W${weekNo}`;
 };
 
-// 📅 Generate week days from weekKey
-const getWeekDatesFromKey = (weekKey) => {
-  if (!weekKey) return [];
+// 📅 Generate week days
+const getWeekDates = () => {
+  const today = new Date();
 
-  const [year, week] = weekKey.split("-W");
-  const firstDay = new Date(year, 0, 1 + (week - 1) * 7);
+  const day = today.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
 
   const days = [];
+
   for (let i = 0; i < 7; i++) {
-    const d = new Date(firstDay);
-    d.setDate(firstDay.getDate() + i);
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
 
     days.push({
       label: d.toLocaleDateString("en-US", { weekday: "short" }),
@@ -37,109 +54,106 @@ const TaskTable = ({
   tasks = [],
   editable = true,
   allowToggle = true,
-  weekKey
+  weekKey,
+  refreshTasks
 }) => {
 
   const [localTasks, setLocalTasks] = useState(tasks);
   const [showModal, setShowModal] = useState(false);
 
-  // 🔥 NEW STATES FOR MODAL CONTROL
   const [modalMode, setModalMode] = useState("add");
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [initialValue, setInitialValue] = useState("");
 
-  // 🔁 Sync props → local state
   useEffect(() => {
     setLocalTasks(tasks);
   }, [tasks]);
 
-  const data = localTasks;
-
-  // ✅ FIX: fallback to current week
   const effectiveWeekKey = weekKey || getCurrentWeekKey();
-  const weekDays = getWeekDatesFromKey(effectiveWeekKey);
+  const weekDays = getWeekDates(); 
 
-  // ➕ / ✏️ SAVE HANDLER (ADD + EDIT)
-  const handleSaveTask = (title) => {
+  // ➕ ADD / ✏️ EDIT
+  const handleSaveTask = async (title) => {
+  try {
     if (modalMode === "add") {
-      const newTask = {
-        id: Date.now(),
+      await API.post("/api/tasks", {
         title,
-        days: Array(7).fill("empty"),
         weekKey: effectiveWeekKey
-      };
-
-      setLocalTasks(prev => [...prev, newTask]);
+      });
 
     } else if (modalMode === "edit") {
-      setLocalTasks(prev =>
-        prev.map(task =>
-          task.id === editingTaskId
-            ? { ...task, title }
-            : task
-        )
-      );
+      await API.patch(`/api/tasks/${editingTaskId}`, {
+        title
+      });
     }
-  };
+
+    await refreshTasks(); // 🔥 ensure fresh data
+    setShowModal(false);
+
+  } catch (err) {
+    console.error("Edit error:", err);
+  }
+};
 
   // ✏️ OPEN EDIT MODAL
   const editTask = (task) => {
     if (!editable) return;
 
     setModalMode("edit");
-    setEditingTaskId(task.id);
+    setEditingTaskId(task._id);
     setInitialValue(task.title);
     setShowModal(true);
   };
 
-  // ❌ DELETE TASK
-  const deleteTask = (id) => {
+  // ❌ DELETE
+  const deleteTask = async (id) => {
     if (!editable) return;
-    setLocalTasks(prev => prev.filter(t => t.id !== id));
+
+    await API.delete(`/api/tasks/${id}`);
+    refreshTasks && refreshTasks();
   };
 
   // 🔁 TOGGLE DAY
-  const toggleDay = (taskId, dayIndex) => {
+  const toggleDay = async (taskId, dayIndex) => {
     if (!allowToggle) return;
 
-    setLocalTasks(prev =>
-      prev.map(task => {
-        if (task.id !== taskId) return task;
+    const task = localTasks.find(t => t._id === taskId);
+    const sequence = ["empty", "done", "miss"];
+    const current = task.days[dayIndex];
+    const next = sequence[(sequence.indexOf(current) + 1) % 3];
 
-        const sequence = ["empty", "done", "miss"];
-        const current = task.days[dayIndex];
-        const next = sequence[(sequence.indexOf(current) + 1) % 3];
+    try {
+      await API.patch(`/api/tasks/${taskId}/day`, {
+        dayIndex,
+        value: next
+      });
 
-        const updatedDays = [...task.days];
-        updatedDays[dayIndex] = next;
+      refreshTasks && refreshTasks();
 
-        return { ...task, days: updatedDays };
-      })
-    );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // 📊 TASK AVG
   const computeTaskAvg = (days) => {
     const done = days.filter(d => d === "done").length;
     return Math.round((done / 7) * 100);
   };
 
-  // 📊 DAILY AVG
   const computeDailyAvg = (dayIndex) => {
-    if (data.length === 0) return "--";
+    if (localTasks.length === 0) return "--";
 
     let done = 0;
-    data.forEach(t => {
+    localTasks.forEach(t => {
       if (t.days[dayIndex] === "done") done++;
     });
 
-    return Math.round((done / data.length) * 100) + "%";
+    return Math.round((done / localTasks.length) * 100) + "%";
   };
 
   return (
     <div className={styles.wrapper}>
 
-      {/* HEADER */}
       <div className={styles.headerRow}>
         <h2 className={styles.title}>Weekly Habit Tracker</h2>
 
@@ -157,7 +171,6 @@ const TaskTable = ({
         )}
       </div>
 
-      {/* TABLE */}
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
 
@@ -179,8 +192,8 @@ const TaskTable = ({
           </thead>
 
           <tbody>
-            {data.map((task, index) => (
-              <tr key={task.id}>
+            {localTasks.map((task, index) => (
+              <tr key={task._id}>
                 <td>{index + 1}</td>
                 <td>{task.title}</td>
 
@@ -194,7 +207,7 @@ const TaskTable = ({
                           ? styles.miss
                           : styles.empty
                       }`}
-                      onClick={() => toggleDay(task.id, i)}
+                      onClick={() => toggleDay(task._id, i)}
                     >
                       {d === "done" && "✓"}
                       {d === "miss" && "✕"}
@@ -208,7 +221,7 @@ const TaskTable = ({
                 {editable && (
                   <td className={styles.actions}>
                     <FiEdit2 className={styles.edit} onClick={() => editTask(task)} />
-                    <FiTrash2 className={styles.del} onClick={() => deleteTask(task.id)} />
+                    <FiTrash2 className={styles.del} onClick={() => deleteTask(task._id)} />
                   </td>
                 )}
               </tr>
@@ -233,12 +246,11 @@ const TaskTable = ({
 
         </table>
 
-        {data.length === 0 && (
+        {localTasks.length === 0 && (
           <p className={styles.emptyText}>No tasks available</p>
         )}
       </div>
 
-      {/* 🔥 MODAL (ADD + EDIT) */}
       <TaskModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

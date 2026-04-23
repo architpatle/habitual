@@ -1,25 +1,21 @@
 import express from "express";
 import {
-  createTask,
-  getTasks,
-  updateTask,
-  deleteTask,
   getCurrentWeekTasks,
+  createTask,
+  updateTaskDay,
+  deleteTask,
   getHistoryTasks,
-  carryForwardTasks,
-  getStats
+  updateTaskTitle
 } from "../controllers/taskController.js";
 
 const router = express.Router();
 
-router.route("/")
-  .post(createTask)
-  .get(getTasks);
-
-router.route("/:id")
-  .put(updateTask)
-  .delete(deleteTask);
-
 router.get("/current", getCurrentWeekTasks);
+router.get("/history", getHistoryTasks);
+
+router.post("/", createTask);
+router.patch("/:id/day", updateTaskDay);
+router.delete("/:id", deleteTask);
+router.patch("/:id", updateTaskTitle);
 
 export default router;
