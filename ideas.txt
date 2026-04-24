@@ -1,0 +1,6 @@
+1. Task Table :
+    1. Rounded Corner of thead and tfoot
+    2. Drag up and down the tasks to change the sequence
+
+2. TaskModal :
+    1. Add on Enter btn clicked

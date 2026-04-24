@@ -1,7 +1,9 @@
 .wrapper {
-  width: 300px;
+  width: 100%;
+  max-width: 320px;  /* 🔥 flexible but controlled */
   position: relative;
-  margin-bottom: 20px;
+  z-index: 100;   /* 🔥 keeps selector above table */
+
 }
 
 /* LABEL */
@@ -44,7 +46,7 @@
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
   overflow: hidden;
-  z-index: 10;
+  z-index: 9999;   /* 🔥 VERY IMPORTANT */
 }
 
 /* OPTION */

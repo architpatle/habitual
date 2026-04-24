@@ -2,18 +2,46 @@ import React, { useEffect, useState } from "react";
 import styles from "./History.module.css";
 import TaskTable from "../../components/TaskTable/TaskTable";
 import WeekSelector from "../../components/WeekSelector/WeekSelector";
+import ScoreCard from "../../components/ScoreCard/ScoreCard";
+import API from "../../utils/api";
 
+// 📅 ISO Week (same as Today)
 const getCurrentWeekKey = () => {
   const now = new Date();
-  const oneJan = new Date(now.getFullYear(), 0, 1);
-  const week = Math.ceil(((now - oneJan) / 86400000 + oneJan.getDay() + 1) / 7);
-  return `${now.getFullYear()}-W${week}`;
+
+  const date = new Date(Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  ));
+  
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+
+  const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+
+  return `${date.getUTCFullYear()}-W${weekNo}`;
 };
 
+// 📅 Previous Week (safe)
 const getPreviousWeekKey = () => {
-  const current = getCurrentWeekKey();
-  const [year, week] = current.split("-W");
-  return `${year}-W${Number(week) - 1}`;
+  const now = new Date();
+  now.setDate(now.getDate() - 7);
+
+  const date = new Date(Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  ));
+
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+
+  const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+
+  return `${date.getUTCFullYear()}-W${weekNo}`;
 };
 
 const History = () => {
@@ -22,58 +50,44 @@ const History = () => {
 
   const previousWeek = getPreviousWeekKey();
 
+  // 🔥 FETCH
+  const fetchHistory = async () => {
+    try {
+      const response = await API.get("/api/tasks/history");
+      const data = response.data;
+
+      const grouped = data.reduce((acc, task) => {
+        if (!acc[task.weekKey]) acc[task.weekKey] = [];
+        acc[task.weekKey].push(task);
+        return acc;
+      }, {});
+
+      setWeeksMap(grouped);
+
+      const keys = Object.keys(grouped).sort().reverse();
+      if (keys.length > 0) setSelectedWeek(keys[0]);
+
+    } catch (err) {
+      console.error("History fetch error:", err);
+    }
+  };
+
   useEffect(() => {
-    // 🔥 MOCK DATA (UI testing)
-    const mockData = [
-      {
-        id: 1,
-        title: "Gym",
-        weekKey: "2026-W16",
-        days: ["done", "done", "miss", "done", "empty", "done", "miss"]
-      },
-      {
-        id: 2,
-        title: "Study",
-        weekKey: "2026-W16",
-        days: ["done", "done", "done", "done", "done", "empty", "empty"]
-      },
-      {
-        id: 3,
-        title: "Reading",
-        weekKey: "2026-W15",
-        days: ["miss", "done", "done", "miss", "done", "done", "done"]
-      },
-      {
-        id: 4,
-        title: "Meditation",
-        weekKey: "2026-W15",
-        days: ["done", "done", "done", "done", "done", "done", "done"]
-      }
-    ];
-
-    const grouped = mockData.reduce((acc, task) => {
-      if (!acc[task.weekKey]) acc[task.weekKey] = [];
-      acc[task.weekKey].push(task);
-      return acc;
-    }, {});
-
-    setWeeksMap(grouped);
-
-    const keys = Object.keys(grouped).sort().reverse();
-    if (keys.length > 0) setSelectedWeek(keys[0]);
-
+    fetchHistory();
   }, []);
 
+  // 📊 WEEK SCORE
   const computeWeekScore = () => {
     const tasks = weeksMap[selectedWeek];
     if (!tasks) return "--";
 
-    let done = 0, total = 0;
+    let done = 0;
+    let total = 0;
 
     tasks.forEach(t => {
       t.days.forEach(d => {
+        total++;
         if (d === "done") done++;
-        if (d !== "empty") total++;
       });
     });
 
@@ -84,27 +98,39 @@ const History = () => {
     return <div className={styles.container}>No history</div>;
   }
 
+  const weekScore = computeWeekScore();
+
   return (
     <div className={styles.container}>
 
-      {/* 🔥 Enhanced Filter */}
-      <WeekSelector
-        weeks={Object.keys(weeksMap).sort().reverse()}
-        selectedWeek={selectedWeek}
-        setSelectedWeek={setSelectedWeek}
-      />
+      {/* 🔥 TOP BAR */}
+      <div className={styles.topRow}>
 
-      {/* Score */}
-      <div className={styles.scores}>
-        <div>Week Score: {computeWeekScore()}%</div>
+        {/* LEFT → Selector */}
+        <WeekSelector
+          weeks={Object.keys(weeksMap).sort().reverse()}
+          selectedWeek={selectedWeek}
+          setSelectedWeek={setSelectedWeek}
+        />
+
+        {/* RIGHT → Score Card */}
+        <ScoreCard
+          heading="Week Score"
+          score={weekScore}
+          color={weekScore > 50 ? "green" : "red"}
+          icon="week"
+          compact={true}   // 🔥 THIS IS THE KEY
+        />
+
       </div>
 
-      {/* 🔥 Task Table */}
+      {/* 🔥 TABLE */}
       <TaskTable
         tasks={weeksMap[selectedWeek]}
-        editable={false} // 🚫 no add/edit/delete
-        allowToggle={selectedWeek === previousWeek} // 🔒 only last week editable
-        weekKey={selectedWeek} // 📅 for dynamic dates
+        editable={false}
+        allowToggle={selectedWeek === previousWeek}
+        weekKey={selectedWeek}
+        refreshTasks={fetchHistory}
       />
 
     </div>

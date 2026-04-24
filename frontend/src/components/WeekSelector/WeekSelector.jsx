@@ -5,15 +5,19 @@ import styles from "./WeekSelector.module.css";
 const formatWeekLabel = (weekKey) => {
   const [year, week] = weekKey.split("-W");
 
-  const firstDay = new Date(year, 0, 1 + (week - 1) * 7);
+  // 🔥 ISO week → get correct Monday
+  const simple = new Date(year, 0, 1 + (week - 1) * 7);
+  const dayOfWeek = simple.getDay();
 
-  const start = new Date(firstDay);
-  const end = new Date(firstDay);
-  end.setDate(start.getDate() + 6);
+  const monday = new Date(simple);
+  monday.setDate(simple.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
 
   const options = { month: "short", day: "numeric" };
 
-  return `Week ${week} • ${start.toLocaleDateString("en-US", options)} - ${end.toLocaleDateString("en-US", options)}`;
+  return `Week ${week} • ${monday.toLocaleDateString("en-US", options)} - ${sunday.toLocaleDateString("en-US", options)}`;
 };
 
 const WeekSelector = ({ weeks, selectedWeek, setSelectedWeek }) => {

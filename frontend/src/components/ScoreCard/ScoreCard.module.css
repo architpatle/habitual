@@ -1,12 +1,12 @@
 .scoreCard {
     background-color: #3B466B10;
     background: linear-gradient(135deg, #050925, #071842, #050925);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(4px);
 
     width: 100%;
-max-width: 480px;
-padding: 30px 20px;
+    max-width: 480px;
+    padding: 30px 20px;
     border-radius: 20px;
     display: flex;
     justify-content: space-between;
@@ -23,6 +23,7 @@ padding: 30px 20px;
         font-size: 24px;
         font-weight: 400;
     }
+
     p {
         font-size: 48px;
         font-weight: 500;
@@ -40,21 +41,39 @@ padding: 30px 20px;
 
 /* 📱 Mobile */
 @media (max-width: 768px) {
-  .scoreCard {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
+    .scoreCard {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
 
-  .icon {
-    font-size: 40px;
-  }
+    .icon {
+        font-size: 40px;
+    }
 
-  .text h2 {
-    font-size: 18px;
-  }
+    .text h2 {
+        font-size: 18px;
+    }
 
-  .text p {
-    font-size: 32px;
-  }
+    .text p {
+        font-size: 32px;
+    }
+}
+
+/* 🔥 Compact version (History page) */
+.compact {
+    max-width: 260px;
+    padding: 20px 18px;
+}
+
+.compact .icon {
+    font-size: 36px;
+}
+
+.compact .text h2 {
+    font-size: 16px;
+}
+
+.compact .text p {
+    font-size: 28px;
 }

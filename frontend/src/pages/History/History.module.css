@@ -24,3 +24,28 @@
   gap: 20px;
   margin-bottom: 20px;
 }
+
+.topRow{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;   /* 🔥 important */
+  gap: 20px;
+  margin-bottom: 30px;
+  position: relative;   /* 🔥 create stacking context */
+  z-index: 1;
+}
+
+.topRow > :first-child {
+  flex: 1;          /* selector takes available space */
+}
+
+.topRow > :last-child {
+  flex-shrink: 0;   /* scorecard stays fixed */
+}
+
+@media (max-width: 768px) {
+  .topRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
