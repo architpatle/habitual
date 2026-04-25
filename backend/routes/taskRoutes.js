@@ -8,14 +8,50 @@ import {
   updateTaskTitle
 } from "../controllers/taskController.js";
 
+import protect from "../middleware/authMiddleware.js";
+
 const router = express.Router();
 
-router.get("/current", getCurrentWeekTasks);
-router.get("/history", getHistoryTasks);
+// Current Week Tasks
+router.get(
+  "/current",
+  protect,
+  getCurrentWeekTasks
+);
 
-router.post("/", createTask);
-router.patch("/:id/day", updateTaskDay);
-router.delete("/:id", deleteTask);
-router.patch("/:id", updateTaskTitle);
+// History Tasks
+router.get(
+  "/history",
+  protect,
+  getHistoryTasks
+);
+
+// Create Task
+router.post(
+  "/",
+  protect,
+  createTask
+);
+
+// Update Task Day Status
+router.patch(
+  "/:id/day",
+  protect,
+  updateTaskDay
+);
+
+// Update Task Title
+router.patch(
+  "/:id",
+  protect,
+  updateTaskTitle
+);
+
+// Delete Task
+router.delete(
+  "/:id",
+  protect,
+  deleteTask
+);
 
 export default router;

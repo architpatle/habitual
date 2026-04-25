@@ -1,28 +1,37 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000"
-});
-
-// 🔐 Attach token (future-ready)
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+  baseURL: "http://localhost:5000/api",
+  headers: {
+    "Content-Type": "application/json"
   }
-
-  return req;
 });
 
-// ⚠️ Handle auth errors (disabled for now)
+// Attach token automatically
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Handle expired token
 API.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.warn("Unauthorized (ignored for now)");
-      // later you can enable redirect
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
 );

@@ -4,3 +4,10 @@
 
 2. TaskModal :
     1. Add on Enter btn clicked
+
+3. Authentication
+    1. Add LogIn - SignUp system
+    2. Multi User Application
+
+4. Device Responsiveness
+    1. Fully Device Responsive 

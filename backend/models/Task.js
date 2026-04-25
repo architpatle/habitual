@@ -1,22 +1,33 @@
 import mongoose from "mongoose";
 
-const taskSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
+const taskSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
 
-  weekKey: {
-    type: String,
-    required: true
-  },
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
 
-  days: {
-    type: [String],
-    enum: ["done", "miss", "empty"],
-    default: ["empty", "empty", "empty", "empty", "empty", "empty", "empty"]
+    weekKey: {
+      type: String,
+      required: true
+    },
+
+    days: {
+      type: [String],
+      enum: ["empty", "done", "miss"],
+      default: Array(7).fill("empty")
+    }
+  },
+  {
+    timestamps: true
   }
-
-}, { timestamps: true });
+);
 
 export default mongoose.model("Task", taskSchema);
