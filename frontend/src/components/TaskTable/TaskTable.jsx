@@ -76,13 +76,13 @@ const TaskTable = ({
   const handleSaveTask = async (title) => {
   try {
     if (modalMode === "add") {
-      await API.post("/api/tasks", {
+      await API.post("tasks", {
         title,
         weekKey: effectiveWeekKey
       });
 
     } else if (modalMode === "edit") {
-      await API.patch(`/api/tasks/${editingTaskId}`, {
+      await API.patch(`tasks/${editingTaskId}`, {
         title
       });
     }
@@ -109,7 +109,7 @@ const TaskTable = ({
   const deleteTask = async (id) => {
     if (!editable) return;
 
-    await API.delete(`/api/tasks/${id}`);
+    await API.delete(`tasks/${id}`);
     refreshTasks && refreshTasks();
   };
 
@@ -123,7 +123,7 @@ const TaskTable = ({
     const next = sequence[(sequence.indexOf(current) + 1) % 3];
 
     try {
-      await API.patch(`/api/tasks/${taskId}/day`, {
+      await API.patch(`tasks/${taskId}/day`, {
         dayIndex,
         value: next
       });

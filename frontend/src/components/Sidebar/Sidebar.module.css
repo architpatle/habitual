@@ -158,3 +158,31 @@
     display: block;
   }
 }
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoutBtn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: rgba(255,255,255,0.08);
+  color: white;
+  transition: 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background: rgba(255,255,255,0.15);
+}

@@ -55,7 +55,7 @@ const Today = () => {
   const fetchTasks = async () => {
     try {
       const weekKey = getCurrentWeekKey();
-      const response = await API.get(`/api/tasks/current?weekKey=${weekKey}`);
+      const response = await API.get(`/tasks/current?weekKey=${weekKey}`);
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);

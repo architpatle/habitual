@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../../utils/api";
-import styles from "./Login.module.css";
+import styles from "../Login/Login.module.css";
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
+    name: "",
     email: "",
     password: ""
   });
@@ -23,7 +24,7 @@ const Login = () => {
 
     try {
       const response = await API.post(
-        "/auth/login",
+        "/auth/register",
         form
       );
 
@@ -42,7 +43,7 @@ const Login = () => {
     } catch (error) {
       alert(
         error.response?.data?.message ||
-        "Login failed"
+        "Registration failed"
       );
     }
   };
@@ -53,7 +54,15 @@ const Login = () => {
         className={styles.form}
         onSubmit={handleSubmit}
       >
-        <h2>Login</h2>
+        <h2>Register</h2>
+
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          onChange={handleChange}
+          required
+        />
 
         <input
           type="email"
@@ -72,13 +81,13 @@ const Login = () => {
         />
 
         <button type="submit">
-          Login
+          Register
         </button>
 
         <p>
-          No account?{" "}
-          <Link to="/register">
-            Register
+          Already have an account?{" "}
+          <Link to="/login">
+            Login
           </Link>
         </p>
       </form>
@@ -86,4 +95,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

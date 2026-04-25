@@ -53,7 +53,7 @@ const History = () => {
   // 🔥 FETCH
   const fetchHistory = async () => {
     try {
-      const response = await API.get("/api/tasks/history");
+      const response = await API.get("tasks/history");
       const data = response.data;
 
       const grouped = data.reduce((acc, task) => {
