@@ -43,9 +43,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       )}
 
       <aside
-        className={`${styles.sidebar} ${
-          isOpen ? styles.open : ""
-        }`}
+        className={`${styles.sidebar} ${isOpen ? styles.open : ""
+          }`}
       >
         {/* Close Button */}
         <div
@@ -65,8 +64,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              `${styles.navItem} ${
-                isActive ? styles.active : ""
+              `${styles.navItem} ${isActive ? styles.active : ""
               }`
             }
             end
@@ -79,8 +77,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <NavLink
             to="/stats"
             className={({ isActive }) =>
-              `${styles.navItem} ${
-                isActive ? styles.active : ""
+              `${styles.navItem} ${isActive ? styles.active : ""
               }`
             }
             onClick={() => setIsOpen(false)}
@@ -92,8 +89,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <NavLink
             to="/history"
             className={({ isActive }) =>
-              `${styles.navItem} ${
-                isActive ? styles.active : ""
+              `${styles.navItem} ${isActive ? styles.active : ""
               }`
             }
             onClick={() => setIsOpen(false)}

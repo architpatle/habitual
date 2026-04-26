@@ -10,17 +10,20 @@ const TaskModal = ({
 }) => {
   const [title, setTitle] = useState("");
 
-  // 🔁 Sync value when modal opens
+  // Sync value when modal opens
   useEffect(() => {
     setTitle(initialValue || "");
   }, [initialValue, isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSave = () => {
+  // Handle form submit (button + Enter key)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
     if (!title.trim()) return;
 
-    onSave(title);
+    onSave(title.trim());
     setTitle("");
     onClose();
   };
@@ -30,26 +33,43 @@ const TaskModal = ({
       <div className={styles.modal}>
 
         <h3 className={styles.heading}>
-          {mode === "edit" ? "Edit Task" : "Add New Task"}
+          {mode === "edit"
+            ? "Edit Task"
+            : "Add New Task"}
         </h3>
 
-        <input
-          type="text"
-          placeholder="Enter task name..."
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className={styles.input}
-        />
+        {/* Form enables Enter key submit */}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Enter task name..."
+            value={title}
+            onChange={(e) =>
+              setTitle(e.target.value)
+            }
+            className={styles.input}
+            autoFocus
+          />
 
-        <div className={styles.actions}>
-          <button onClick={onClose} className={styles.cancel}>
-            Cancel
-          </button>
+          <div className={styles.actions}>
+            <button
+              type="button"
+              onClick={onClose}
+              className={styles.cancel}
+            >
+              Cancel
+            </button>
 
-          <button onClick={handleSave} className={styles.save}>
-            {mode === "edit" ? "Save Changes" : "Add Task"}
-          </button>
-        </div>
+            <button
+              type="submit"
+              className={styles.save}
+            >
+              {mode === "edit"
+                ? "Save Changes"
+                : "Add Task"}
+            </button>
+          </div>
+        </form>
 
       </div>
     </div>

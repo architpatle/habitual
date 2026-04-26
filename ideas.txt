@@ -1,13 +1,9 @@
 1. Task Table :
     1. Rounded Corner of thead and tfoot
     2. Drag up and down the tasks to change the sequence
+    3. Undo the deleted tasks
 
-2. TaskModal :
-    1. Add on Enter btn clicked
-
-3. Authentication
-    1. Add LogIn - SignUp system
-    2. Multi User Application
-
-4. Device Responsiveness
+2. Device Responsiveness
     1. Fully Device Responsive 
+
+3. Reset Progress to 0

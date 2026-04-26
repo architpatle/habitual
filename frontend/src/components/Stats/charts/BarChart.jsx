@@ -5,38 +5,55 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Legend
 } from "recharts";
 
 const BarChartComp = ({ tasks = [] }) => {
   const data = tasks.map((task) => {
     const doneCount =
-      task.days?.filter((day) => day === "done").length || 0;
+      task.days?.filter(
+        (day) => day === "done"
+      ).length || 0;
+
+    const incompleteCount =
+      task.days?.filter(
+        (day) =>
+          day === "miss" || day === "empty"
+      ).length || 0;
 
     return {
       name: task.title,
-      value: doneCount
+      completed: doneCount,
+      incomplete: incompleteCount
     };
   });
 
-  // Longest label length
+  // Dynamic label spacing
   const longestLabel = Math.max(
-    ...tasks.map((task) => task.title.length),
+    ...tasks.map(
+      (task) => task.title.length
+    ),
     0
   );
 
-  // Dynamic label area only
-  const labelHeight = Math.max(80, longestLabel * 8);
+  const labelHeight = Math.max(
+    80,
+    longestLabel * 8
+  );
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer
+      width="100%"
+      height={420}
+    >
       <BarChart
         data={data}
         margin={{
           top: 20,
           right: 20,
           left: 0,
-          bottom: 20   // keep this fixed
+          bottom: 20
         }}
       >
         <XAxis
@@ -45,16 +62,27 @@ const BarChartComp = ({ tasks = [] }) => {
           angle={-90}
           textAnchor="end"
           interval={0}
-          height={labelHeight}   // only labels expand
+          height={labelHeight}
         />
 
         <YAxis stroke="#aaa" />
 
         <Tooltip />
 
+        <Legend />
+
+        {/* Completed */}
         <Bar
-          dataKey="value"
-          fill="#0048FF"
+          dataKey="completed"
+          fill="#00C46A"
+          radius={[4, 4, 0, 0]}
+        />
+
+        {/* Incomplete */}
+        <Bar
+          dataKey="incomplete"
+          fill="#FF4D4D"
+          radius={[4, 4, 0, 0]}
         />
       </BarChart>
     </ResponsiveContainer>
