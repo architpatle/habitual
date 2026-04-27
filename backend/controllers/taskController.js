@@ -11,12 +11,46 @@ export const getCurrentWeekTasks = async (req, res) => {
       });
     }
 
-    const tasks = await Task.find({
+    // Check if current week tasks already exist
+    let tasks = await Task.find({
       user: req.user._id,
       weekKey
     }).sort({ createdAt: 1 });
 
-    res.status(200).json(tasks);
+    // If current week exists → return
+    if (tasks.length > 0) {
+      return res.status(200).json(tasks);
+    }
+
+    // Get latest previous tasks
+    const previousTasks = await Task.find({
+      user: req.user._id
+    })
+      .sort({ createdAt: -1 });
+
+    // If no previous tasks exist
+    if (previousTasks.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Unique titles only
+    const uniqueTitles = [
+      ...new Set(
+        previousTasks.map((task) => task.title)
+      )
+    ];
+
+    // Clone for new week
+    const newWeekTasks = await Task.insertMany(
+      uniqueTitles.map((title) => ({
+        user: req.user._id,
+        title,
+        weekKey,
+        days: Array(7).fill("empty")
+      }))
+    );
+
+    res.status(200).json(newWeekTasks);
 
   } catch (err) {
     res.status(500).json({

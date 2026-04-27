@@ -10,30 +10,43 @@ import {
 } from "recharts";
 
 const BarChartComp = ({ tasks = [] }) => {
-  const data = tasks.map((task) => {
-    const doneCount =
-      task.days?.filter(
-        (day) => day === "done"
-      ).length || 0;
+  // Aggregate by task title
+  const groupedTasks = tasks.reduce(
+    (acc, task) => {
+      const title = task.title;
 
-    const incompleteCount =
-      task.days?.filter(
-        (day) =>
-          day === "miss" || day === "empty"
-      ).length || 0;
+      const doneCount =
+        task.days?.filter(
+          (day) => day === "done"
+        ).length || 0;
 
-    return {
-      name: task.title,
-      completed: doneCount,
-      incomplete: incompleteCount
-    };
-  });
+      const incompleteCount =
+        task.days?.filter(
+          (day) =>
+            day === "miss" || day === "empty"
+        ).length || 0;
+
+      if (!acc[title]) {
+        acc[title] = {
+          name: title,
+          completed: 0,
+          incomplete: 0
+        };
+      }
+
+      acc[title].completed += doneCount;
+      acc[title].incomplete += incompleteCount;
+
+      return acc;
+    },
+    {}
+  );
+
+  const data = Object.values(groupedTasks);
 
   // Dynamic label spacing
   const longestLabel = Math.max(
-    ...tasks.map(
-      (task) => task.title.length
-    ),
+    ...data.map((task) => task.name.length),
     0
   );
 
@@ -71,14 +84,12 @@ const BarChartComp = ({ tasks = [] }) => {
 
         <Legend />
 
-        {/* Completed */}
         <Bar
           dataKey="completed"
           fill="#00C46A"
           radius={[4, 4, 0, 0]}
         />
 
-        {/* Incomplete */}
         <Bar
           dataKey="incomplete"
           fill="#FF4D4D"

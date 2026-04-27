@@ -7,3 +7,6 @@
     1. Fully Device Responsive 
 
 3. Reset Progress to 0
+
+4. Stats Page
+    Analyze the exact ideas and requirements and implementation for this page
