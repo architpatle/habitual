@@ -1,6 +1,11 @@
 .wrapper {
   width: 100%;
-  background: linear-gradient(135deg, #050925, #071842, #050925);
+  background: linear-gradient(
+    135deg,
+    #050925,
+    #071842,
+    #050925
+  );
   padding: 24px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -8,7 +13,7 @@
   backdrop-filter: blur(4px);
 }
 
-/* HEADER TITLE + ADD BUTTON */
+/* HEADER */
 .headerRow {
   display: flex;
   align-items: center;
@@ -41,21 +46,21 @@
   background: #2a60cc;
 }
 
-/* SCROLL WRAPPER */
+/* TABLE WRAPPER */
 .tableWrapper {
   max-height: 500px;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   position: relative;
 }
 
-/* TABLE BASE */
+/* TABLE */
 .table {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* STICKY HEADER */
+/* HEADER */
 .table thead th {
   position: sticky;
   top: 0;
@@ -68,33 +73,88 @@
   backdrop-filter: blur(4px);
 }
 
-/* TABLE BODY */
+/* BODY */
 .table tbody td {
   padding: 10px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid
+    rgba(255, 255, 255, 0.1);
   font-size: 15px;
-  cursor: pointer;
 }
 
-/* ACTION BUTTONS */
+/* ROW HOVER */
+.table tbody tr {
+  transition: 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background: rgba(
+    255,
+    255,
+    255,
+    0.03
+  );
+}
+
+/* ACTIONS */
+.actionsCell {
+  width: 140px;
+}
+
 .actions {
+  display: flex;
   align-items: center;
-  gap: 12px ;
-  padding: 10px 8px;
+  justify-content: flex-start;
+  gap: 14px;
 }
 
+/* EDIT */
 .edit {
   color: #ffc107;
-  margin-right: 15px;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
+.edit:hover {
+  transform: scale(1.1);
+}
+
+/* DELETE */
 .del {
   color: #dc3545;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-/* 🔥 NEW TRI-STATE CELL */
+.del:hover {
+  transform: scale(1.1);
+}
+
+/* DRAG HANDLE */
+.dragHandle {
+  color: #aaa;
+  cursor: grab;
+  font-size: 18px;
+  transition: 0.2s ease;
+}
+
+.dragHandle:hover {
+  color: white;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragging {
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0.8;
+}
+
+.table tbody tr {
+  height: 56px;
+}
+
+/* CELLS */
 .cell {
   display: flex;
   justify-content: center;
@@ -106,44 +166,67 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid
+    rgba(255, 255, 255, 0.2);
 }
 
-/* EMPTY STATE (dash) */
+/* EMPTY */
 .empty {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(
+    255,
+    255,
+    255,
+    0.05
+  );
   color: #888;
 }
 
 .empty:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(
+    255,
+    255,
+    255,
+    0.1
+  );
 }
 
-/* DONE STATE (green glow) */
+/* DONE */
 .done {
-  background: rgba(40, 167, 69, 0.2);
+  background: rgba(
+    40,
+    167,
+    69,
+    0.2
+  );
   color: #28a745;
   border: none;
-  box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+  box-shadow: 0 0 8px
+    rgba(40, 167, 69, 0.5);
 }
 
 .done:hover {
   transform: scale(1.1);
 }
 
-/* MISS STATE (red glow) */
+/* MISS */
 .miss {
-  background: rgba(217, 83, 79, 0.2);
+  background: rgba(
+    217,
+    83,
+    79,
+    0.2
+  );
   color: #ff4d4d;
   border: none;
-  box-shadow: 0 0 8px rgba(217, 83, 79, 0.5);
+  box-shadow: 0 0 8px
+    rgba(217, 83, 79, 0.5);
 }
 
 .miss:hover {
   transform: scale(1.1);
 }
 
-/* FOOTER (DAILY AVG) */
+/* FOOTER */
 .table tfoot td {
   position: sticky;
   bottom: 0;
@@ -151,7 +234,8 @@
   background: rgba(5, 9, 37);
   font-weight: 600;
   padding: 10px 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid
+    rgba(255, 255, 255, 0.2);
 }
 
 .footerLabel {
@@ -169,7 +253,14 @@
   font-size: 13px;
 }
 
-/* SCROLLBAR HIDDEN */
+/* EMPTY TEXT */
+.emptyText {
+  text-align: center;
+  padding: 24px;
+  opacity: 0.7;
+}
+
+/* HIDE SCROLLBAR */
 .tableWrapper::-webkit-scrollbar {
   display: none;
 }
@@ -179,10 +270,10 @@
   -ms-overflow-style: none;
 }
 
-/* 📱 Mobile */
+/* MOBILE */
 @media (max-width: 768px) {
   .table {
-    min-width: 700px; /* prevents squishing */
+    min-width: 720px;
   }
 
   .headerRow {

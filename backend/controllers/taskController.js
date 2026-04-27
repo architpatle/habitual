@@ -11,13 +11,13 @@ export const getCurrentWeekTasks = async (req, res) => {
       });
     }
 
-    // Check if current week tasks already exist
+    // Get current week tasks
     let tasks = await Task.find({
       user: req.user._id,
       weekKey
-    }).sort({ createdAt: 1 });
+    }).sort({ order: 1 });
 
-    // If current week exists → return
+    // If current week exists
     if (tasks.length > 0) {
       return res.status(200).json(tasks);
     }
@@ -25,28 +25,39 @@ export const getCurrentWeekTasks = async (req, res) => {
     // Get latest previous tasks
     const previousTasks = await Task.find({
       user: req.user._id
-    })
-      .sort({ createdAt: -1 });
+    }).sort({
+      weekKey: -1,
+      order: 1
+    });
 
-    // If no previous tasks exist
+    // If no previous tasks
     if (previousTasks.length === 0) {
       return res.status(200).json([]);
     }
 
-    // Unique titles only
-    const uniqueTitles = [
-      ...new Set(
-        previousTasks.map((task) => task.title)
-      )
-    ];
+    // Get unique tasks while preserving order
+    const uniqueTasks = [];
+    const seen = new Set();
 
-    // Clone for new week
+    previousTasks.forEach((task) => {
+      if (!seen.has(task.title)) {
+        seen.add(task.title);
+
+        uniqueTasks.push({
+          title: task.title,
+          order: task.order
+        });
+      }
+    });
+
+    // Clone into new week
     const newWeekTasks = await Task.insertMany(
-      uniqueTitles.map((title) => ({
+      uniqueTasks.map((task) => ({
         user: req.user._id,
-        title,
+        title: task.title,
         weekKey,
-        days: Array(7).fill("empty")
+        days: Array(7).fill("empty"),
+        order: task.order
       }))
     );
 
@@ -70,11 +81,18 @@ export const createTask = async (req, res) => {
       });
     }
 
+    // Get current task count for ordering
+    const taskCount = await Task.countDocuments({
+      user: req.user._id,
+      weekKey
+    });
+
     const task = new Task({
       user: req.user._id,
       title: title.trim(),
       weekKey,
-      days: Array(7).fill("empty")
+      days: Array(7).fill("empty"),
+      order: taskCount + 1
     });
 
     const savedTask = await task.save();
@@ -94,7 +112,11 @@ export const updateTaskDay = async (req, res) => {
     const { id } = req.params;
     const { dayIndex, value } = req.body;
 
-    const allowedValues = ["empty", "done", "miss"];
+    const allowedValues = [
+      "empty",
+      "done",
+      "miss"
+    ];
 
     if (
       dayIndex < 0 ||
@@ -160,7 +182,10 @@ export const getHistoryTasks = async (req, res) => {
   try {
     const tasks = await Task.find({
       user: req.user._id
-    }).sort({ weekKey: -1 });
+    }).sort({
+      weekKey: -1,
+      order: 1
+    });
 
     res.status(200).json(tasks);
 
@@ -203,6 +228,34 @@ export const updateTaskTitle = async (req, res) => {
     }
 
     res.status(200).json(task);
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+  }
+};
+
+// 🔀 REORDER TASKS
+export const reorderTasks = async (req, res) => {
+  try {
+    const { tasks } = req.body;
+
+    for (const item of tasks) {
+      await Task.findOneAndUpdate(
+        {
+          _id: item.id,
+          user: req.user._id
+        },
+        {
+          order: item.order
+        }
+      );
+    }
+
+    res.status(200).json({
+      message: "Tasks reordered successfully"
+    });
 
   } catch (err) {
     res.status(500).json({

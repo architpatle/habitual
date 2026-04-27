@@ -19,10 +19,21 @@ const taskSchema = new mongoose.Schema(
       required: true
     },
 
+    // Weekly progress
     days: {
-      type: [String],
-      enum: ["empty", "done", "miss"],
-      default: Array(7).fill("empty")
+      type: [
+        {
+          type: String,
+          enum: ["empty", "done", "miss"]
+        }
+      ],
+      default: () => Array(7).fill("empty")
+    },
+
+    // Task order for drag/drop sorting
+    order: {
+      type: Number,
+      default: 0
     }
   },
   {

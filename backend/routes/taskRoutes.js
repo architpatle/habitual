@@ -1,11 +1,13 @@
 import express from "express";
+
 import {
   getCurrentWeekTasks,
   createTask,
   updateTaskDay,
   deleteTask,
   getHistoryTasks,
-  updateTaskTitle
+  updateTaskTitle,
+  reorderTasks
 } from "../controllers/taskController.js";
 
 import protect from "../middleware/authMiddleware.js";
@@ -31,6 +33,13 @@ router.post(
   "/",
   protect,
   createTask
+);
+
+// 🔀 Reorder Tasks
+router.patch(
+  "/reorder",
+  protect,
+  reorderTasks
 );
 
 // Update Task Day Status
