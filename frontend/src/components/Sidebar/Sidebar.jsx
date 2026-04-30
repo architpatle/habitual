@@ -13,6 +13,8 @@ import {
   useNavigate
 } from "react-router-dom";
 
+import Logo from "../../assets/images/Habitual-logo.png"
+
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
 
@@ -54,10 +56,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <FiX />
         </div>
 
-        {/* App Title */}
-        <h2 className={styles.title}>
-          Habitual
-        </h2>
+        {/* App Logo */}
+        <div className={styles.logoWrapper}>
+  <img
+    src={Logo}
+    alt="Habitual Logo"
+    className={styles.logo}
+  />
+</div>
 
         {/* Navigation */}
         <nav className={styles.nav}>
