@@ -119,10 +119,10 @@ const SortableRow = ({
         <td key={i}>
           <div
             className={`${styles.cell} ${d === "done"
-                ? styles.done
-                : d === "miss"
-                  ? styles.miss
-                  : styles.empty
+              ? styles.done
+              : d === "miss"
+                ? styles.miss
+                : styles.empty
               }`}
             onClick={() =>
               toggleDay(task._id, i)
@@ -190,6 +190,15 @@ const TaskTable = ({
   const [initialValue, setInitialValue] =
     useState("");
 
+  const [deletedTask, setDeletedTask] =
+    useState(null);
+
+  const [deletedTaskIndex, setDeletedTaskIndex] =
+    useState(null);
+
+  const [deleteTimer, setDeleteTimer] =
+    useState(null);
+
   useEffect(() => {
     setLocalTasks(tasks);
   }, [tasks]);
@@ -241,12 +250,69 @@ const TaskTable = ({
   const deleteTask = async (id) => {
     if (!editable) return;
 
-    await API.delete(
-      `/tasks/${id}`
+    const taskIndex =
+      localTasks.findIndex(
+        (task) => task._id === id
+      );
+
+    const taskToDelete =
+      localTasks[taskIndex];
+
+    if (!taskToDelete) return;
+
+    const updatedTasks =
+      localTasks.filter(
+        (task) => task._id !== id
+      );
+
+    setLocalTasks(updatedTasks);
+
+    setDeletedTask(taskToDelete);
+    setDeletedTaskIndex(taskIndex);
+
+    const timer = setTimeout(
+      async () => {
+        try {
+          await API.delete(
+            `/tasks/${id}`
+          );
+
+          refreshTasks &&
+            refreshTasks();
+
+        } catch (err) {
+          console.error(err);
+        }
+
+        setDeletedTask(null);
+        setDeletedTaskIndex(null);
+      },
+      5000
     );
 
-    refreshTasks &&
-      refreshTasks();
+    setDeleteTimer(timer);
+  };
+
+  // Undo Delete Task
+  const handleUndoDelete = () => {
+    if (!deletedTask) return;
+
+    clearTimeout(deleteTimer);
+
+    const restoredTasks = [
+      ...localTasks
+    ];
+
+    restoredTasks.splice(
+      deletedTaskIndex,
+      0,
+      deletedTask
+    );
+
+    setLocalTasks(restoredTasks);
+
+    setDeletedTask(null);
+    setDeletedTaskIndex(null);
   };
 
   // Toggle day
@@ -503,39 +569,104 @@ const TaskTable = ({
             >
               <tbody>
                 {localTasks.map(
-                  (
-                    task,
-                    index
-                  ) => (
-                    <SortableRow
-                      key={
-                        task._id
-                      }
-                      task={task}
-                      index={
-                        index
-                      }
-                      editable={
-                        editable
-                      }
-                      allowToggle={
-                        allowToggle
-                      }
-                      toggleDay={
-                        toggleDay
-                      }
-                      editTask={
-                        editTask
-                      }
-                      deleteTask={
-                        deleteTask
-                      }
-                      computeTaskAvg={
-                        computeTaskAvg
-                      }
-                    />
+                  (task, index) => (
+                    <React.Fragment
+                      key={task._id}
+                    >
+                      {/* Insert undo row exactly where deleted */}
+                      {deletedTask &&
+                        deletedTaskIndex ===
+                        index && (
+                          <tr
+                            className={
+                              styles.undoRow
+                            }
+                          >
+                            <td
+                              colSpan={
+                                editable
+                                  ? 11
+                                  : 10
+                              }
+                            >
+                              <div
+                                className={
+                                  styles.undoInline
+                                }
+                              >
+                                <span>
+                                  Task deleted
+                                </span>
+
+                                <button
+                                  onClick={
+                                    handleUndoDelete
+                                  }
+                                  className={
+                                    styles.undoBtn
+                                  }
+                                >
+                                  Undo
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+
+                      <SortableRow
+                        task={task}
+                        index={index}
+                        editable={editable}
+                        allowToggle={allowToggle}
+                        toggleDay={toggleDay}
+                        editTask={editTask}
+                        deleteTask={deleteTask}
+                        computeTaskAvg={
+                          computeTaskAvg
+                        }
+                      />
+                    </React.Fragment>
                   )
                 )}
+
+                {/* Edge case:
+      deleted last row */}
+                {deletedTask &&
+                  deletedTaskIndex ===
+                  localTasks.length && (
+                    <tr
+                      className={
+                        styles.undoRow
+                      }
+                    >
+                      <td
+                        colSpan={
+                          editable ? 11 : 10
+                        }
+                      >
+                        <div
+                          className={
+                            styles.undoInline
+                          }
+                        >
+                          <span>
+                            Task deleted
+                          </span>
+
+                          <button
+                            onClick={
+                              handleUndoDelete
+                            }
+                            className={
+                              styles.undoBtn
+                            }
+                          >
+                            Undo
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
               </tbody>
             </SortableContext>
 

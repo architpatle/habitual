@@ -1,6 +1,5 @@
 1. Task Table :
     1. Rounded Corner of thead and tfoot
-    2. Drag up and down the tasks to change the sequence
     3. Undo the deleted tasks
 
 2. Device Responsiveness
@@ -10,3 +9,6 @@
 
 4. Stats Page
     Analyze the exact ideas and requirements and implementation for this page
+
+5. Authentication
+    Reset Password
