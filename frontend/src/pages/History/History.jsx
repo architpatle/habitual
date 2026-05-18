@@ -14,7 +14,7 @@ const getCurrentWeekKey = () => {
     now.getMonth(),
     now.getDate()
   ));
-  
+
   date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
 
   const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
@@ -64,8 +64,14 @@ const History = () => {
 
       setWeeksMap(grouped);
 
-      const keys = Object.keys(grouped).sort().reverse();
-      if (keys.length > 0) setSelectedWeek(keys[0]);
+      const keys = Object.keys(grouped)
+        .sort()
+        .reverse();
+
+      // Only set initially
+      setSelectedWeek((prev) =>
+        prev || keys[0]
+      );
 
     } catch (err) {
       console.error("History fetch error:", err);
