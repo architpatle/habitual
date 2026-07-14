@@ -1,10 +1,24 @@
 .container {
   min-height: 100vh;
   width: 100%;
+
   display: flex;
+  flex-direction: column;
+
   justify-content: center;
   align-items: center;
+
   padding: 20px;
+}
+
+.logoWrapper {
+  margin-bottom: 28px;
+}
+
+.logo {
+  width: 170px;
+  height: auto;
+  display: block;
 }
 
 .form {
@@ -68,14 +82,48 @@
   border: none;
   border-radius: 12px;
 
-  background: #0048FF;
+  background: #0048ff;
   color: white;
 
   font-size: 15px;
   font-weight: 600;
+
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition: 0.25s;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.form button:disabled {
+  cursor: not-allowed;
+  opacity: .85;
+}
+
+.form button:disabled {
+  cursor: not-allowed;
+  opacity: .85;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+
+  border: 2px solid rgba(255,255,255,.3);
+  border-top: 2px solid #fff;
+
+  border-radius: 50%;
+
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .form button:hover {

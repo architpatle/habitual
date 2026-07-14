@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import API from "../../utils/api";
 import styles from "./Login.module.css";
 
+import logo from "../../assets/images/Habitual-logo.png"; 
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -10,6 +12,8 @@ const Login = () => {
     email: "",
     password: ""
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -21,16 +25,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await API.post(
-        "/auth/login",
-        form
-      );
+    if (loading) return;
 
-      localStorage.setItem(
-        "token",
-        response.data.token
-      );
+    setLoading(true);
+
+    try {
+      const response = await API.post("/auth/login", form);
+
+      localStorage.setItem("token", response.data.token);
 
       localStorage.setItem(
         "user",
@@ -44,11 +46,23 @@ const Login = () => {
         error.response?.data?.message ||
         "Login failed"
       );
+
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles.container}>
+
+      {/* Logo */}
+      <div className={styles.logoWrapper}>
+        <img
+          src={logo}
+          alt="Logo"
+          className={styles.logo}
+        />
+      </div>
+
       <form
         className={styles.form}
         onSubmit={handleSubmit}
@@ -60,6 +74,7 @@ const Login = () => {
           name="email"
           placeholder="Email"
           onChange={handleChange}
+          disabled={loading}
           required
         />
 
@@ -68,11 +83,23 @@ const Login = () => {
           name="password"
           placeholder="Password"
           onChange={handleChange}
+          disabled={loading}
           required
         />
 
-        <button type="submit">
-          Login
+        <button
+          type="submit"
+          disabled={loading}
+          className={loading ? styles.loadingBtn : ""}
+        >
+          {loading ? (
+            <>
+              <span className={styles.spinner}></span>
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}
         </button>
 
         <p>
@@ -81,7 +108,9 @@ const Login = () => {
             Register
           </Link>
         </p>
+
       </form>
+
     </div>
   );
 };
