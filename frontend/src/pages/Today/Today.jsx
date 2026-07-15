@@ -4,8 +4,11 @@ import ScoreCard from "../../components/ScoreCard/ScoreCard";
 import TaskTable from "../../components/TaskTable/TaskTable";
 import API from "../../utils/api";
 
-// 📅 Week Key (backend only)
+// Week Key (backend only)
 const getCurrentWeekKey = () => {
+
+  
+
   const now = new Date();
 
   const date = new Date(Date.UTC(
@@ -51,14 +54,25 @@ const getWeekDates = () => {
 
 const Today = () => {
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchTasks = async () => {
+    setLoading(true);
+
     try {
       const weekKey = getCurrentWeekKey();
-      const response = await API.get(`/tasks/current?weekKey=${weekKey}`);
+
+      const response = await API.get(
+        `/tasks/current?weekKey=${weekKey}`
+      );
+
       setTasks(response.data);
+
     } catch (error) {
       console.error("Error fetching tasks:", error);
+
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -115,6 +129,7 @@ const Today = () => {
       <TaskTable
         tasks={tasks}
         refreshTasks={fetchTasks}
+        loading={loading}
       />
     </div>
   );

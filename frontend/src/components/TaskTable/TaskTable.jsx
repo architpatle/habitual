@@ -173,7 +173,8 @@ const TaskTable = ({
   editable = true,
   allowToggle = true,
   weekKey,
-  refreshTasks
+  refreshTasks,
+  loading
 }) => {
   const [localTasks, setLocalTasks] =
     useState(tasks);
@@ -277,8 +278,9 @@ const TaskTable = ({
             `/tasks/${id}`
           );
 
-          refreshTasks &&
-            refreshTasks();
+          if (refreshTasks) {
+            await refreshTasks();
+          }
 
         } catch (err) {
           console.error(err);
@@ -353,8 +355,9 @@ const TaskTable = ({
         }
       );
 
-      refreshTasks &&
-        refreshTasks();
+      if (refreshTasks) {
+        await refreshTasks();
+      }
 
     } catch (err) {
       console.error(err);
@@ -415,8 +418,9 @@ const TaskTable = ({
         }
       );
 
-      refreshTasks &&
-        refreshTasks();
+      if (refreshTasks) {
+        await refreshTasks();
+      }
 
     } catch (err) {
       console.error(
@@ -506,216 +510,222 @@ const TaskTable = ({
         )}
       </div>
 
-      <div
-        className={
-          styles.tableWrapper
-        }
-      >
-        <DndContext
-          collisionDetection={
-            closestCenter
-          }
-          onDragEnd={
-            handleDragEnd
+      <div className={styles.tableWrapper}>
+
+        {loading && (
+          <div className={styles.loadingOverlay}>
+            <div className={styles.loader}></div>
+            <p>Updating habits...</p>
+          </div>
+        )}
+        <div
+          className={
+            loading
+              ? styles.loadingTable
+              : ""
           }
         >
-          <table
-            className={
-              styles.table
+          <DndContext
+            collisionDetection={
+              closestCenter
+            }
+            onDragEnd={
+              handleDragEnd
             }
           >
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Task</th>
-
-                {weekDays.map(
-                  (
-                    d,
-                    i
-                  ) => (
-                    <th
-                      key={i}
-                    >
-                      {d.label}
-                      <div
-                        className={
-                          styles.date
-                        }
-                      >
-                        ({d.date})
-                      </div>
-                    </th>
-                  )
-                )}
-
-                <th>Avg</th>
-                {editable && (
-                  <th>
-                    Actions
-                  </th>
-                )}
-              </tr>
-            </thead>
-
-            <SortableContext
-              items={localTasks.map(
-                (task) =>
-                  task._id
-              )}
-              strategy={
-                verticalListSortingStrategy
+            <table
+              className={
+                styles.table
               }
             >
-              <tbody>
-                {localTasks.map(
-                  (task, index) => (
-                    <React.Fragment
-                      key={task._id}
-                    >
-                      {/* Insert undo row exactly where deleted */}
-                      {deletedTask &&
-                        deletedTaskIndex ===
-                        index && (
-                          <tr
-                            className={
-                              styles.undoRow
-                            }
-                          >
-                            <td
-                              colSpan={
-                                editable
-                                  ? 11
-                                  : 10
-                              }
-                            >
-                              <div
-                                className={
-                                  styles.undoInline
-                                }
-                              >
-                                <span>
-                                  Task deleted
-                                </span>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Task</th>
 
-                                <button
-                                  onClick={
-                                    handleUndoDelete
-                                  }
-                                  className={
-                                    styles.undoBtn
-                                  }
-                                >
-                                  Undo
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-
-                      <SortableRow
-                        task={task}
-                        index={index}
-                        editable={editable}
-                        allowToggle={allowToggle}
-                        toggleDay={toggleDay}
-                        editTask={editTask}
-                        deleteTask={deleteTask}
-                        computeTaskAvg={
-                          computeTaskAvg
-                        }
-                      />
-                    </React.Fragment>
-                  )
-                )}
-
-                {/* Edge case:
-      deleted last row */}
-                {deletedTask &&
-                  deletedTaskIndex ===
-                  localTasks.length && (
-                    <tr
-                      className={
-                        styles.undoRow
-                      }
-                    >
-                      <td
-                        colSpan={
-                          editable ? 11 : 10
-                        }
+                  {weekDays.map(
+                    (
+                      d,
+                      i
+                    ) => (
+                      <th
+                        key={i}
                       >
+                        {d.label}
                         <div
                           className={
-                            styles.undoInline
+                            styles.date
                           }
                         >
-                          <span>
-                            Task deleted
-                          </span>
+                          ({d.date})
+                        </div>
+                      </th>
+                    )
+                  )}
 
-                          <button
-                            onClick={
-                              handleUndoDelete
-                            }
+                  <th>Avg</th>
+                  {editable && (
+                    <th>
+                      Actions
+                    </th>
+                  )}
+                </tr>
+              </thead>
+
+              <SortableContext
+                items={localTasks.map(
+                  (task) =>
+                    task._id
+                )}
+                strategy={
+                  verticalListSortingStrategy
+                }
+              >
+                <tbody>
+                  {localTasks.map(
+                    (task, index) => (
+                      <React.Fragment
+                        key={task._id}
+                      >
+                        {/* Insert undo row exactly where deleted */}
+                        {deletedTask &&
+                          deletedTaskIndex ===
+                          index && (
+                            <tr
+                              className={
+                                styles.undoRow
+                              }
+                            >
+                              <td
+                                colSpan={
+                                  editable
+                                    ? 11
+                                    : 10
+                                }
+                              >
+                                <div
+                                  className={
+                                    styles.undoInline
+                                  }
+                                >
+                                  <span>
+                                    Task deleted
+                                  </span>
+
+                                  <button
+                                    onClick={
+                                      handleUndoDelete
+                                    }
+                                    className={
+                                      styles.undoBtn
+                                    }
+                                  >
+                                    Undo
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+
+                        <SortableRow
+                          task={task}
+                          index={index}
+                          editable={editable}
+                          allowToggle={allowToggle}
+                          toggleDay={toggleDay}
+                          editTask={editTask}
+                          deleteTask={deleteTask}
+                          computeTaskAvg={
+                            computeTaskAvg
+                          }
+                        />
+                      </React.Fragment>
+                    )
+                  )}
+
+                  {/* Edge case:
+      deleted last row */}
+                  {deletedTask &&
+                    deletedTaskIndex ===
+                    localTasks.length && (
+                      <tr
+                        className={
+                          styles.undoRow
+                        }
+                      >
+                        <td
+                          colSpan={
+                            editable ? 11 : 10
+                          }
+                        >
+                          <div
                             className={
-                              styles.undoBtn
+                              styles.undoInline
                             }
                           >
-                            Undo
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-              </tbody>
-            </SortableContext>
+                            <span>
+                              Task deleted
+                            </span>
 
-            <tfoot>
-              <tr>
-                <td></td>
+                            <button
+                              onClick={
+                                handleUndoDelete
+                              }
+                              className={
+                                styles.undoBtn
+                              }
+                            >
+                              Undo
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                </tbody>
+              </SortableContext>
 
-                <td
-                  className={
-                    styles.footerLabel
-                  }
-                >
-                  Daily Avg
-                </td>
-
-                {weekDays.map(
-                  (_, i) => (
-                    <td
-                      key={i}
-                      className={
-                        styles.footerCell
-                      }
-                    >
-                      {computeDailyAvg(
-                        i
-                      )}
-                    </td>
-                  )
-                )}
-
-                <td></td>
-                {editable && (
+              <tfoot>
+                <tr>
                   <td></td>
-                )}
-              </tr>
-            </tfoot>
-          </table>
-        </DndContext>
 
-        {localTasks.length ===
-          0 && (
-            <p
-              className={
-                styles.emptyText
-              }
-            >
-              No tasks available
-            </p>
-          )}
+                  <td
+                    className={
+                      styles.footerLabel
+                    }
+                  >
+                    Daily Avg
+                  </td>
+
+                  {weekDays.map(
+                    (_, i) => (
+                      <td
+                        key={i}
+                        className={
+                          styles.footerCell
+                        }
+                      >
+                        {computeDailyAvg(
+                          i
+                        )}
+                      </td>
+                    )
+                  )}
+
+                  <td></td>
+                  {editable && (
+                    <td></td>
+                  )}
+                </tr>
+              </tfoot>
+            </table>
+          </DndContext>
+        </div>
+        {!loading && localTasks.length === 0 && (
+          <p className={styles.emptyText}>
+            No tasks available
+          </p>
+        )}
+
       </div>
 
       <TaskModal
